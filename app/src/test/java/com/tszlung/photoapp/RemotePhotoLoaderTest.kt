@@ -2,6 +2,7 @@ package com.tszlung.photoapp
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 import java.net.URL
 
 class RemotePhotoLoaderTest {
@@ -14,7 +15,7 @@ class RemotePhotoLoaderTest {
     }
 
     @Test
-    fun `request URL from client`() {
+    fun `requests URL from client`() {
         val url = URL("https://a-url.com")
         val (sut, client) = makeSUT(url = url)
 
@@ -23,9 +24,19 @@ class RemotePhotoLoaderTest {
         assertEquals(client.messages, listOf(url))
     }
 
+    @Test
+    fun `delivers connectivity error on client's error`() {
+        val (sut, _) = makeSUT()
+
+        when(val result = sut.load()) {
+            is Result.Failure -> assertEquals(result.error, RemotePhotoLoader.LoaderError.CONNECTIVITY)
+            is Result.Success -> fail("should not be success here")
+        }
+    }
+
     // region Helpers
     private fun makeSUT(url: URL = URL("https://any-url.com")): Pair<RemotePhotoLoader, HTTPClientSpy> {
-        val client = HTTPClientSpy()
+        val client = HTTPClientSpy(error = HTTPClientSpy.HTTPClientError.ANY)
         val sut = RemotePhotoLoader(client = client, url = url)
         return Pair(sut, client)
     }
@@ -33,15 +44,33 @@ class RemotePhotoLoaderTest {
 }
 
 class RemotePhotoLoader(private val client: HTTPClientSpy, private val url: URL) {
-    fun load() {
-        client.getFor(url)
+    enum class LoaderError: Error {
+        CONNECTIVITY
+    }
+
+    fun load(): Result<Unit, Error> {
+        return when(val result = client.getFor(url)) {
+            is Result.Failure -> Result.Failure(LoaderError.CONNECTIVITY)
+            is Result.Success -> Result.Success(Unit)
+        }
     }
 }
 
-class HTTPClientSpy {
+class HTTPClientSpy(private val error: Error) {
+    enum class HTTPClientError: Error {
+        ANY
+    }
+
     val messages = mutableListOf<URL>()
 
-    fun getFor(url: URL) {
+    fun getFor(url: URL): Result<Unit, Error> {
         messages.add(url)
+        return Result.Failure(error)
     }
+}
+
+sealed interface Error
+sealed interface Result<out D, out E : Error> {
+    data class Success<out D, out E : Error>(val data: D) : Result<D, E>
+    data class Failure<out D, out E : Error>(val error: E) : Result<D, E>
 }
