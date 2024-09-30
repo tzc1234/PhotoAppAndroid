@@ -38,7 +38,7 @@ class RemotePhotoLoaderTest {
 
     // region Helpers
     private fun makeSUT(url: URL = URL("https://any-url.com")): Pair<RemotePhotoLoader, HTTPClientSpy> {
-        val client = HTTPClientSpy(error = HTTPClientSpy.HTTPClientError.ANY)
+        val client = HTTPClientSpy(error = HTTPClientError.UNKNOWN)
         val sut = RemotePhotoLoader(client = client, url = url)
         return Pair(sut, client)
     }
@@ -58,11 +58,11 @@ class RemotePhotoLoader(private val client: HTTPClientSpy, private val url: URL)
     }
 }
 
-class HTTPClientSpy(private val error: Error) {
-    enum class HTTPClientError: Error {
-        ANY
-    }
+enum class HTTPClientError: Error {
+    UNKNOWN
+}
 
+class HTTPClientSpy(private val error: Error) {
     val messages = mutableListOf<URL>()
 
     fun getFor(url: URL): Result<Unit, Error> {
