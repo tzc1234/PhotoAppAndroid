@@ -155,11 +155,3 @@ class RemotePhotoLoader(private val client: HTTPClient, private val url: URL) {
         }
     }
 }
-
-enum class HTTPClientError : Error {
-    UNKNOWN
-}
-
-interface HTTPClient {
-    suspend fun getFor(url: URL): Result<ByteArray, Error>
-}
