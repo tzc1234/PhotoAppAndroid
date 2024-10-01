@@ -6,7 +6,7 @@ import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import kotlinx.serialization.json.Json
 
-class PhotoResponseMapper {
+class PhotoResponseMapper private constructor() {
     companion object {
         fun map(data: ByteArray): Result<List<Photo>, Error> {
             val payload = data.toString(Charsets.UTF_8)
