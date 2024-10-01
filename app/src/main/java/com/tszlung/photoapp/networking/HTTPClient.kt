@@ -1,4 +1,4 @@
-package com.tszlung.photoapp.features
+package com.tszlung.photoapp.networking
 
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result

@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.net.URL
 import com.tszlung.photoapp.features.*
+import com.tszlung.photoapp.networking.HTTPClient
+import com.tszlung.photoapp.networking.HTTPClientError
 import com.tszlung.photoapp.networking.PhotoResponse
 import com.tszlung.photoapp.networking.RemotePhotoLoader
 import com.tszlung.photoapp.util.Error
