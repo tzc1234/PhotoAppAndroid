@@ -119,10 +119,19 @@ class RemotePhotoLoaderTest {
         }
         return Json.encodeToString(response).toByteArray(Charsets.UTF_8)
     }
+
+    private class HTTPClientSpy(private val stub: Result<ByteArray, Error>) : HTTPClient {
+        val messages = mutableListOf<URL>()
+
+        override suspend fun getFor(url: URL): Result<ByteArray, Error> {
+            messages.add(url)
+            return stub
+        }
+    }
     // endregion
 }
 
-class RemotePhotoLoader(private val client: HTTPClientSpy, private val url: URL) {
+class RemotePhotoLoader(private val client: HTTPClient, private val url: URL) {
     enum class LoaderError : Error {
         CONNECTIVITY,
         INVALID_DATA
@@ -193,11 +202,6 @@ enum class HTTPClientError : Error {
     UNKNOWN
 }
 
-class HTTPClientSpy(private val stub: Result<ByteArray, Error>) {
-    val messages = mutableListOf<URL>()
-
-    suspend fun getFor(url: URL): Result<ByteArray, Error> {
-        messages.add(url)
-        return stub
-    }
+interface HTTPClient {
+    suspend fun getFor(url: URL): Result<ByteArray, Error>
 }
