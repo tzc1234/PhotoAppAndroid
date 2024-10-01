@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.material3)
 
     testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.jupiter.engine)
 
     androidTestImplementation(libs.androidx.junit)

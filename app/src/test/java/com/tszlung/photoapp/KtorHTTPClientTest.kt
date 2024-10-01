@@ -16,6 +16,9 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.fail
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import java.net.URL
 
 class KtorHTTPClientTest {
@@ -32,13 +35,30 @@ class KtorHTTPClientTest {
         assertEquals(listOf(Pair(url.toString(), HttpMethod.Get)), loggedMessages)
     }
 
-    @Test
-    fun `fails on 5XX status code`() = runBlocking {
-        val sut = makeSUT(statusCode = HttpStatusCode.ServiceUnavailable)
+    @ParameterizedTest
+    @MethodSource("statusCodes5xx")
+    fun `fails on 5XX status code`(statusCode: HttpStatusCode) = runBlocking {
+        val sut = makeSUT(statusCode = statusCode)
 
         when(val result = sut.getFrom(anyURL())) {
             is Result.Failure -> assertEquals(HTTPClientError.SERVER_ERROR, result.error)
             is Result.Success -> fail("Should not be success")
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun statusCodes5xx(): List<Arguments> {
+            return listOf(
+                Arguments.of(HttpStatusCode.InternalServerError),
+                Arguments.of(HttpStatusCode.NotImplemented),
+                Arguments.of(HttpStatusCode.BadGateway),
+                Arguments.of(HttpStatusCode.ServiceUnavailable),
+                Arguments.of(HttpStatusCode.GatewayTimeout),
+                Arguments.of(HttpStatusCode.VersionNotSupported),
+                Arguments.of(HttpStatusCode.VariantAlsoNegotiates),
+                Arguments.of(HttpStatusCode.InsufficientStorage)
+            )
         }
     }
 
@@ -61,7 +81,7 @@ class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
     override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
         val response = client.get(url)
         return when(response.status.value) {
-            503 -> Result.Failure(HTTPClientError.SERVER_ERROR)
+            in 500..599 -> Result.Failure(HTTPClientError.SERVER_ERROR)
             else -> Result.Failure(HTTPClientError.UNKNOWN)
         }
     }
