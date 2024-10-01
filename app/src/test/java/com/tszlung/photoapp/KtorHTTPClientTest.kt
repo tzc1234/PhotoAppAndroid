@@ -8,6 +8,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.mock.*
+import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.get
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -22,11 +23,9 @@ class KtorHTTPClientTest {
     fun `requests URL and method from engine`() = runBlocking {
         val url = URL("https://a-url.com")
         val loggedMessages = mutableListOf<Pair<String, HttpMethod>>()
-        val mockEngine = MockEngine { request ->
+        val sut = makeSUT(statusCode = HttpStatusCode.OK) { request ->
             loggedMessages.add(Pair(request.url.toString(), request.method))
-            respond("")
         }
-        val sut = KtorHTTPClient(mockEngine)
 
         sut.getFrom(url)
 
@@ -35,10 +34,7 @@ class KtorHTTPClientTest {
 
     @Test
     fun `fails on 5XX status code`() = runBlocking {
-        val mockEngine = MockEngine { _ ->
-            respond("", status = HttpStatusCode.ServiceUnavailable)
-        }
-        val sut = KtorHTTPClient(mockEngine)
+        val sut = makeSUT(statusCode = HttpStatusCode.ServiceUnavailable)
 
         when(val result = sut.getFrom(anyURL())) {
             is Result.Failure -> assertEquals(HTTPClientError.SERVER_ERROR, result.error)
@@ -47,6 +43,14 @@ class KtorHTTPClientTest {
     }
 
     // region Helpers
+    private fun makeSUT(statusCode: HttpStatusCode, requestBlock: (HttpRequestData) -> Unit = {}): KtorHTTPClient {
+        val mockEngine = MockEngine { request ->
+            requestBlock(request)
+            respond("", status = statusCode)
+        }
+        return KtorHTTPClient(mockEngine)
+    }
+
     private fun anyURL() = URL("https://any-url.com")
     // endregion
 }
