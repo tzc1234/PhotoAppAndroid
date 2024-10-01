@@ -156,15 +156,6 @@ class RemotePhotoLoader(private val client: HTTPClient, private val url: URL) {
     }
 }
 
-data class Photo(
-    val id: String,
-    val author: String,
-    val width: Int,
-    val height: Int,
-    val webURL: URL,
-    val imageURL: URL
-)
-
 enum class HTTPClientError : Error {
     UNKNOWN
 }
