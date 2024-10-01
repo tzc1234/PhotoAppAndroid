@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("de.mannodermaus.android-junit5") version "1.11.0.0"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -70,4 +71,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(libs.ktor.serialization.kotlinx.json)
 }
