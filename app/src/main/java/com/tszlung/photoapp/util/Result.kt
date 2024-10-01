@@ -1,4 +1,4 @@
-package com.tszlung.photoapp.features
+package com.tszlung.photoapp.util
 
 sealed interface Result<out D, out E : Error> {
     data class Success<out D, out E : Error>(val data: D) : Result<D, E>

@@ -7,6 +7,8 @@ import java.net.URL
 import com.tszlung.photoapp.features.*
 import com.tszlung.photoapp.networking.PhotoResponse
 import com.tszlung.photoapp.networking.RemotePhotoLoader
+import com.tszlung.photoapp.util.Error
+import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
