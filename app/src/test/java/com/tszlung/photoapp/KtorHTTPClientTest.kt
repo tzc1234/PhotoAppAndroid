@@ -1,16 +1,10 @@
 package com.tszlung.photoapp
 
-import com.tszlung.photoapp.networking.HTTPClient
 import com.tszlung.photoapp.networking.HTTPClientError
-import com.tszlung.photoapp.util.Error
+import com.tszlung.photoapp.networking.KtorHTTPClient
 import com.tszlung.photoapp.util.Result
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.HttpRequestData
-import io.ktor.client.request.get
-import io.ktor.client.statement.readBytes
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
@@ -140,22 +134,4 @@ class KtorHTTPClientTest {
 
     private fun anyURL() = URL("https://any-url.com")
     // endregion
-}
-
-class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
-    private val client = HttpClient(engine) {
-        followRedirects = false
-    }
-
-    override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
-        val response = client.get(url)
-        return when (response.status.value) {
-            in 200..299 -> Result.Success(response.readBytes())
-            401 -> Result.Failure(HTTPClientError.UNAUTHORIZED)
-            404 -> Result.Failure(HTTPClientError.NOT_FOUND)
-            408 -> Result.Failure(HTTPClientError.TIMEOUT)
-            in 500..599 -> Result.Failure(HTTPClientError.SERVER_ERROR)
-            else -> Result.Failure(HTTPClientError.UNKNOWN)
-        }
-    }
 }
