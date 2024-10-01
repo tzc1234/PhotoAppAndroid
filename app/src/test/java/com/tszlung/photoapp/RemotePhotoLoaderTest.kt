@@ -85,7 +85,7 @@ class RemotePhotoLoaderTest {
     private fun makeSUT(
         url: URL = URL("https://any-url.com"),
         stub: Result<ByteArray, Error> = Result.Failure(HTTPClientError.UNKNOWN)
-    ): Pair<RemotePhotoLoader, HTTPClientSpy> {
+    ): Pair<PhotoLoader, HTTPClientSpy> {
         val client = HTTPClientSpy(stub)
         val sut = RemotePhotoLoader(client = client, url = url)
         return Pair(sut, client)
