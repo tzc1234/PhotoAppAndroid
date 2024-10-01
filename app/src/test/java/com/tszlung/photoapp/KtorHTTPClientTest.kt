@@ -10,6 +10,7 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.get
+import io.ktor.client.statement.readBytes
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
@@ -40,7 +41,7 @@ class KtorHTTPClientTest {
     fun `fails on 5XX status codes`(statusCode: HttpStatusCode) = runBlocking {
         val sut = makeSUT(statusCode = statusCode)
 
-        when(val result = sut.getFrom(anyURL())) {
+        when (val result = sut.getFrom(anyURL())) {
             is Result.Failure -> assertEquals(HTTPClientError.SERVER_ERROR, result.error)
             is Result.Success -> fail("Should not be success")
         }
@@ -48,27 +49,49 @@ class KtorHTTPClientTest {
 
     @ParameterizedTest
     @MethodSource("statusCode4xx")
-    fun `fails on 4xx status codes`(statusCode: HttpStatusCode, expectError: HTTPClientError) = runBlocking {
-        val sut = makeSUT(statusCode = statusCode)
+    fun `fails on 4xx status codes`(statusCode: HttpStatusCode, expectError: HTTPClientError) =
+        runBlocking {
+            val sut = makeSUT(statusCode = statusCode)
 
-        when(val result = sut.getFrom(anyURL())) {
-            is Result.Failure -> assertEquals(expectError, result.error)
-            is Result.Success -> fail("Should not be success")
+            when (val result = sut.getFrom(anyURL())) {
+                is Result.Failure -> assertEquals(expectError, result.error)
+                is Result.Success -> fail("Should not be success")
+            }
         }
-    }
 
     @ParameterizedTest
     @MethodSource("statusCode3xx")
     fun `fails on 3xx status codes`(statusCode: HttpStatusCode) = runBlocking {
         val sut = makeSUT(statusCode = statusCode)
 
-        when(val result = sut.getFrom(anyURL())) {
+        when (val result = sut.getFrom(anyURL())) {
             is Result.Failure -> assertEquals(HTTPClientError.UNKNOWN, result.error)
             is Result.Success -> fail("Should not be success")
         }
     }
 
+    @ParameterizedTest
+    @MethodSource("statusCode2xx")
+    fun `succeeds on 2xx status codes`(statusCode: HttpStatusCode) = runBlocking {
+        val content = "any"
+        val sut = makeSUT(statusCode = statusCode, content = content)
+
+        when (val result = sut.getFrom(anyURL())) {
+            is Result.Failure -> fail("Should not be failure")
+            is Result.Success -> assertEquals(content, result.data.toString(Charsets.UTF_8))
+        }
+    }
+
     companion object {
+        @JvmStatic
+        fun statusCode2xx(): List<Arguments> {
+            return listOf(
+                Arguments.of(HttpStatusCode.OK),
+                Arguments.of(HttpStatusCode.ResetContent),
+                Arguments.of(HttpStatusCode.MultiStatus)
+            )
+        }
+
         @JvmStatic
         fun statusCode3xx(): List<Arguments> {
             return listOf(
@@ -103,10 +126,14 @@ class KtorHTTPClientTest {
     }
 
     // region Helpers
-    private fun makeSUT(statusCode: HttpStatusCode, requestBlock: (HttpRequestData) -> Unit = {}): KtorHTTPClient {
+    private fun makeSUT(
+        statusCode: HttpStatusCode,
+        content: String = "",
+        requestBlock: (HttpRequestData) -> Unit = {}
+    ): KtorHTTPClient {
         val mockEngine = MockEngine { request ->
             requestBlock(request)
-            respond("", status = statusCode)
+            respond(content, status = statusCode)
         }
         return KtorHTTPClient(mockEngine)
     }
@@ -122,7 +149,8 @@ class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
 
     override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
         val response = client.get(url)
-        return when(response.status.value) {
+        return when (response.status.value) {
+            in 200..299 -> Result.Success(response.readBytes())
             401 -> Result.Failure(HTTPClientError.UNAUTHORIZED)
             404 -> Result.Failure(HTTPClientError.NOT_FOUND)
             408 -> Result.Failure(HTTPClientError.TIMEOUT)
