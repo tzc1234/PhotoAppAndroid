@@ -5,16 +5,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.net.URL
 import com.tszlung.photoapp.features.*
+import com.tszlung.photoapp.networking.PhotoResponse
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 
 class RemotePhotoLoaderTest {
@@ -171,32 +164,6 @@ data class Photo(
     val webURL: URL,
     val imageURL: URL
 )
-
-@Serializable
-data class PhotoResponse(
-    val id: String,
-    val author: String,
-    val width: Int,
-    val height: Int,
-    @Serializable(with = URLSerializer::class)
-    val url: URL,
-    @SerialName("download_url")
-    @Serializable(with = URLSerializer::class)
-    val downloadURL: URL
-)
-
-object URLSerializer : KSerializer<URL> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("stringAsURLSerializer", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: URL) {
-        encoder.encodeString(value.toString())
-    }
-
-    override fun deserialize(decoder: Decoder): URL {
-        return URL(decoder.decodeString())
-    }
-}
 
 enum class HTTPClientError : Error {
     UNKNOWN
