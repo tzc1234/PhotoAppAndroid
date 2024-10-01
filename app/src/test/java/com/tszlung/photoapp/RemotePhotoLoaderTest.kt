@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.net.URL
 import com.tszlung.photoapp.features.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -18,7 +19,7 @@ class RemotePhotoLoaderTest {
     }
 
     @Test
-    fun `requests URL from client`() {
+    fun `requests URL from client`() = runBlocking {
         val url = URL("https://a-url.com")
         val (sut, client) = makeSUT(url = url)
 
@@ -28,7 +29,7 @@ class RemotePhotoLoaderTest {
     }
 
     @Test
-    fun `delivers connectivity error on client's error`() {
+    fun `delivers connectivity error on client's error`() = runBlocking {
         val (sut, _) = makeSUT(stub = Result.Failure(HTTPClientError.UNKNOWN))
 
         when (val result = sut.load()) {
@@ -42,7 +43,7 @@ class RemotePhotoLoaderTest {
     }
 
     @Test
-    fun `delivers invalid data error on invalid data`() {
+    fun `delivers invalid data error on invalid data`() = runBlocking {
         val invalidData = "invalid".toByteArray(Charsets.UTF_8)
         val (sut, _) = makeSUT(stub = Result.Success(invalidData))
 
@@ -53,6 +54,17 @@ class RemotePhotoLoaderTest {
             )
 
             is Result.Success -> fail("should not be success here")
+        }
+    }
+
+    @Test
+    fun `delivers empty photos on empty photos data`() = runBlocking {
+        val emptyPhotoData = "[]".toByteArray(Charsets.UTF_8)
+        val (sut, _) = makeSUT(stub = Result.Success(emptyPhotoData))
+
+        when (val result = sut.load()) {
+            is Result.Failure -> fail("should not be failure here")
+            is Result.Success -> assertTrue(result.data.isEmpty())
         }
     }
 
@@ -74,22 +86,25 @@ class RemotePhotoLoader(private val client: HTTPClientSpy, private val url: URL)
         INVALID_DATA
     }
 
-    fun load(): Result<Unit, Error> {
+     suspend fun load(): Result<List<Photo>, Error> {
         return when (val result = client.getFor(url)) {
             is Result.Failure -> Result.Failure(LoaderError.CONNECTIVITY)
             is Result.Success -> {
                 val payload = result.data.toString(Charsets.UTF_8)
                 try {
                     val photoResponse = Json.decodeFromString<List<PhotoResponse>>(payload)
+                    return Result.Success(listOf())
                 } catch (e: Exception) {
                     return Result.Failure(LoaderError.INVALID_DATA)
                 }
-
-                return Result.Success(Unit)
             }
         }
     }
 }
+
+data class Photo(
+    val id: String
+)
 
 @Serializable
 data class PhotoResponse(
@@ -103,7 +118,7 @@ enum class HTTPClientError : Error {
 class HTTPClientSpy(private val stub: Result<ByteArray, Error>) {
     val messages = mutableListOf<URL>()
 
-    fun getFor(url: URL): Result<ByteArray, Error> {
+    suspend fun getFor(url: URL): Result<ByteArray, Error> {
         messages.add(url)
         return stub
     }
