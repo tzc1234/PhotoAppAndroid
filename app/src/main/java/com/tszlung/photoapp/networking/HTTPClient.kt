@@ -6,7 +6,10 @@ import java.net.URL
 
 enum class HTTPClientError : Error {
     UNKNOWN,
-    SERVER_ERROR
+    SERVER_ERROR,
+    UNAUTHORIZED,
+    TIMEOUT,
+    NOT_FOUND
 }
 
 interface HTTPClient {

@@ -46,7 +46,27 @@ class KtorHTTPClientTest {
         }
     }
 
+    @ParameterizedTest
+    @MethodSource("statusCode4XX")
+    fun `fails on 4xx status code`(statusCode: HttpStatusCode, expectError: HTTPClientError) = runBlocking {
+        val sut = makeSUT(statusCode = statusCode)
+
+        when(val result = sut.getFrom(anyURL())) {
+            is Result.Failure -> assertEquals(expectError, result.error)
+            is Result.Success -> fail("Should not be success")
+        }
+    }
+
     companion object {
+        @JvmStatic
+        fun statusCode4XX(): List<Arguments> {
+            return listOf(
+                Arguments.of(HttpStatusCode.Unauthorized, HTTPClientError.UNAUTHORIZED),
+                Arguments.of(HttpStatusCode.NotFound, HTTPClientError.NOT_FOUND),
+                Arguments.of(HttpStatusCode.RequestTimeout, HTTPClientError.TIMEOUT)
+            )
+        }
+
         @JvmStatic
         fun statusCodes5xx(): List<Arguments> {
             return listOf(
@@ -81,6 +101,9 @@ class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
     override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
         val response = client.get(url)
         return when(response.status.value) {
+            401 -> Result.Failure(HTTPClientError.UNAUTHORIZED)
+            404 -> Result.Failure(HTTPClientError.NOT_FOUND)
+            408 -> Result.Failure(HTTPClientError.TIMEOUT)
             in 500..599 -> Result.Failure(HTTPClientError.SERVER_ERROR)
             else -> Result.Failure(HTTPClientError.UNKNOWN)
         }
