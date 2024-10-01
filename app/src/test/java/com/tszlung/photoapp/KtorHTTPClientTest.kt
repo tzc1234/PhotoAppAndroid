@@ -37,7 +37,7 @@ class KtorHTTPClientTest {
 
     @ParameterizedTest
     @MethodSource("statusCodes5xx")
-    fun `fails on 5XX status code`(statusCode: HttpStatusCode) = runBlocking {
+    fun `fails on 5XX status codes`(statusCode: HttpStatusCode) = runBlocking {
         val sut = makeSUT(statusCode = statusCode)
 
         when(val result = sut.getFrom(anyURL())) {
@@ -47,8 +47,8 @@ class KtorHTTPClientTest {
     }
 
     @ParameterizedTest
-    @MethodSource("statusCode4XX")
-    fun `fails on 4xx status code`(statusCode: HttpStatusCode, expectError: HTTPClientError) = runBlocking {
+    @MethodSource("statusCode4xx")
+    fun `fails on 4xx status codes`(statusCode: HttpStatusCode, expectError: HTTPClientError) = runBlocking {
         val sut = makeSUT(statusCode = statusCode)
 
         when(val result = sut.getFrom(anyURL())) {
@@ -57,9 +57,29 @@ class KtorHTTPClientTest {
         }
     }
 
+    @ParameterizedTest
+    @MethodSource("statusCode3xx")
+    fun `fails on 3xx status codes`(statusCode: HttpStatusCode) = runBlocking {
+        val sut = makeSUT(statusCode = statusCode)
+
+        when(val result = sut.getFrom(anyURL())) {
+            is Result.Failure -> assertEquals(HTTPClientError.UNKNOWN, result.error)
+            is Result.Success -> fail("Should not be success")
+        }
+    }
+
     companion object {
         @JvmStatic
-        fun statusCode4XX(): List<Arguments> {
+        fun statusCode3xx(): List<Arguments> {
+            return listOf(
+                Arguments.of(HttpStatusCode.MultipleChoices),
+                Arguments.of(HttpStatusCode.UseProxy),
+                Arguments.of(HttpStatusCode.PermanentRedirect)
+            )
+        }
+
+        @JvmStatic
+        fun statusCode4xx(): List<Arguments> {
             return listOf(
                 Arguments.of(HttpStatusCode.Unauthorized, HTTPClientError.UNAUTHORIZED),
                 Arguments.of(HttpStatusCode.NotFound, HTTPClientError.NOT_FOUND),
@@ -96,7 +116,9 @@ class KtorHTTPClientTest {
 }
 
 class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
-    private val client = HttpClient(engine)
+    private val client = HttpClient(engine) {
+        followRedirects = false
+    }
 
     override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
         val response = client.get(url)
