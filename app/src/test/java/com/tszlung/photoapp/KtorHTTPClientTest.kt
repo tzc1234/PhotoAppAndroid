@@ -1,5 +1,6 @@
 package com.tszlung.photoapp
 
+import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.networking.HTTPClientError
 import com.tszlung.photoapp.networking.KtorHTTPClient
 import com.tszlung.photoapp.util.Result
@@ -131,7 +132,5 @@ class KtorHTTPClientTest {
         }
         return KtorHTTPClient(mockEngine)
     }
-
-    private fun anyURL() = URL("https://any-url.com")
     // endregion
 }

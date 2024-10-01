@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.net.URL
 import com.tszlung.photoapp.features.*
+import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.networking.HTTPClient
 import com.tszlung.photoapp.networking.HTTPClientError
 import com.tszlung.photoapp.networking.PhotoResponse
@@ -87,7 +88,7 @@ class RemotePhotoLoaderTest {
 
     // region Helpers
     private fun makeSUT(
-        url: URL = URL("https://any-url.com"),
+        url: URL = anyURL(),
         stub: Result<ByteArray, Error> = Result.Failure(HTTPClientError.UNKNOWN)
     ): Pair<PhotoLoader, HTTPClientSpy> {
         val client = HTTPClientSpy(stub)
