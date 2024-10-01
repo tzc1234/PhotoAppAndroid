@@ -9,5 +9,5 @@ enum class HTTPClientError : Error {
 }
 
 interface HTTPClient {
-    suspend fun getFor(url: URL): Result<ByteArray, Error>
+    suspend fun getFrom(url: URL): Result<ByteArray, Error>
 }

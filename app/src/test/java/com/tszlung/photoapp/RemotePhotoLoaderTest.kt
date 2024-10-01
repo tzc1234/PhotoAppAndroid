@@ -121,7 +121,7 @@ class RemotePhotoLoaderTest {
     private class HTTPClientSpy(private val stub: Result<ByteArray, Error>) : HTTPClient {
         val messages = mutableListOf<URL>()
 
-        override suspend fun getFor(url: URL): Result<ByteArray, Error> {
+        override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
             messages.add(url)
             return stub
         }

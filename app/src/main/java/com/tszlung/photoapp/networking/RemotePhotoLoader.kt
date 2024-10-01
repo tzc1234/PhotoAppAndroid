@@ -13,7 +13,7 @@ class RemotePhotoLoader(private val client: HTTPClient, private val url: URL) : 
     }
 
     override suspend fun load(): Result<List<Photo>, Error> {
-        return when (val result = client.getFor(url)) {
+        return when (val result = client.getFrom(url)) {
             is Result.Failure -> Result.Failure(LoaderError.CONNECTIVITY)
             is Result.Success -> PhotoResponseMapper.map(result.data)
         }
