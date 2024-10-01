@@ -15,7 +15,12 @@ class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
     }
 
     override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
-        val response = client.get(url)
+        val response = try {
+            client.get(url)
+        } catch (e: Exception) {
+            return Result.Failure(HTTPClientError.UNKNOWN)
+        }
+
         return when (response.status.value) {
             in 200..299 -> Result.Success(response.readBytes())
             401 -> Result.Failure(HTTPClientError.UNAUTHORIZED)
