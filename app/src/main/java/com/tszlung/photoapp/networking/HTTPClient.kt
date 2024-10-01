@@ -5,7 +5,8 @@ import com.tszlung.photoapp.util.Result
 import java.net.URL
 
 enum class HTTPClientError : Error {
-    UNKNOWN
+    UNKNOWN,
+    SERVER_ERROR
 }
 
 interface HTTPClient {

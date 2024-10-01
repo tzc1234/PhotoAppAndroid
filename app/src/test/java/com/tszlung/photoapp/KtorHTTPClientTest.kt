@@ -10,9 +10,11 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.get
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.fail
 import java.net.URL
 
 class KtorHTTPClientTest {
@@ -24,19 +26,39 @@ class KtorHTTPClientTest {
             loggedMessages.add(Pair(request.url.toString(), request.method))
             respond("")
         }
-        val sut = KtorHTTPClient(engine = mockEngine)
+        val sut = KtorHTTPClient(mockEngine)
 
         sut.getFrom(url)
 
         assertEquals(listOf(Pair(url.toString(), HttpMethod.Get)), loggedMessages)
     }
+
+    @Test
+    fun `fails on 5XX status code`() = runBlocking {
+        val mockEngine = MockEngine { _ ->
+            respond("", status = HttpStatusCode.ServiceUnavailable)
+        }
+        val sut = KtorHTTPClient(mockEngine)
+
+        when(val result = sut.getFrom(anyURL())) {
+            is Result.Failure -> assertEquals(HTTPClientError.SERVER_ERROR, result.error)
+            is Result.Success -> fail("Should not be success")
+        }
+    }
+
+    // region Helpers
+    private fun anyURL() = URL("https://any-url.com")
+    // endregion
 }
 
 class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
     private val client = HttpClient(engine)
 
     override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
-        client.get(url)
-        return Result.Failure(HTTPClientError.UNKNOWN)
+        val response = client.get(url)
+        return when(response.status.value) {
+            503 -> Result.Failure(HTTPClientError.SERVER_ERROR)
+            else -> Result.Failure(HTTPClientError.UNKNOWN)
+        }
     }
 }
