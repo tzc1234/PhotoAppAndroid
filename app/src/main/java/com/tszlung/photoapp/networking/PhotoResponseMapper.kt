@@ -23,7 +23,7 @@ class PhotoResponseMapper private constructor() {
                     )
                 }
                 return Result.Success(photos)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 return Result.Failure(LoaderError.INVALID_DATA)
             }
         }

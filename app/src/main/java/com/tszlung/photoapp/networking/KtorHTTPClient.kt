@@ -17,7 +17,7 @@ class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
     override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
         val response = try {
             client.get(url)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return Result.Failure(HTTPClientError.UNKNOWN)
         }
 
