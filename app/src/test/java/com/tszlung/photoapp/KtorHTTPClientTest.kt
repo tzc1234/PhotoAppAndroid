@@ -65,6 +65,16 @@ class KtorHTTPClientTest {
         }
     }
 
+    @Test
+    fun `fails on any exception`() = runBlocking {
+        val sut = makeSUT(statusCode = HttpStatusCode.OK, shouldThrowAnException = true)
+
+        when (val result = sut.getFrom(anyURL())) {
+            is Result.Failure -> assertEquals(HTTPClientError.UNKNOWN, result.error)
+            is Result.Success -> fail("Should not be success")
+        }
+    }
+
     @ParameterizedTest
     @MethodSource("statusCode2xx")
     fun `succeeds on 2xx status codes`(statusCode: HttpStatusCode) = runBlocking {
@@ -124,10 +134,16 @@ class KtorHTTPClientTest {
     private fun makeSUT(
         statusCode: HttpStatusCode,
         content: String = "",
+        shouldThrowAnException: Boolean = false,
         requestBlock: (HttpRequestData) -> Unit = {}
     ): KtorHTTPClient {
         val mockEngine = MockEngine { request ->
             requestBlock(request)
+
+            if (shouldThrowAnException) {
+                throw RuntimeException()
+            }
+
             respond(content, status = statusCode)
         }
         return KtorHTTPClient(mockEngine)
