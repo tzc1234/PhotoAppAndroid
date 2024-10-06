@@ -1,5 +1,7 @@
 package com.tszlung.photoapp
 
+import com.tszlung.photoapp.features.ImageDataLoader
+import com.tszlung.photoapp.features.ImageDataLoaderError
 import com.tszlung.photoapp.helpers.HTTPClientSpy
 import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.networking.HTTPClient
@@ -72,15 +74,6 @@ class RemoteImageDataLoaderTest {
         return "any".toByteArray(Charsets.UTF_8)
     }
     // endregion
-}
-
-enum class ImageDataLoaderError : Error {
-    CONNECTIVITY,
-    INVALID_DATA
-}
-
-interface ImageDataLoader {
-    suspend fun loadFrom(url: URL): Result<ByteArray, Error>
 }
 
 class RemoteImageDataLoader(private val client: HTTPClient) : ImageDataLoader {
