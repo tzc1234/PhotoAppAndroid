@@ -1,19 +1,21 @@
 package com.tszlung.photoapp
 
 import com.tszlung.photoapp.helpers.HTTPClientSpy
+import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.networking.HTTPClient
+import com.tszlung.photoapp.networking.HTTPClientError
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 import java.net.URL
 
 class RemoteImageDataLoaderTest {
     @Test
-    @Suppress("UNUSED_VARIABLE")
     fun `loader does not notify client upon init`() {
-        val (sut, client) = makSUT()
+        val (_, client) = makSUT()
 
         assertTrue(client.messages.isEmpty())
     }
@@ -28,6 +30,16 @@ class RemoteImageDataLoaderTest {
         assertEquals(listOf(url), client.messages)
     }
 
+    @Test
+    fun `delivers connectivity error on client error`() = runBlocking {
+        val (sut, _) = makSUT(stub = Result.Failure(HTTPClientError.UNKNOWN))
+
+        when(val result = sut.loadFrom(anyURL())) {
+            is Result.Failure -> assertEquals(ImageDataLoaderError.CONNECTIVITY, result.error)
+            is Result.Success -> fail("should not be success")
+        }
+    }
+
     // region Helpers
     private fun makSUT(stub: Result<ByteArray, Error> = Result.Success(anyData())): Pair<RemoteImageDataLoader, HTTPClientSpy> {
         val client = HTTPClientSpy(stub)
@@ -40,8 +52,13 @@ class RemoteImageDataLoaderTest {
     // endregion
 }
 
+enum class ImageDataLoaderError : Error {
+    CONNECTIVITY
+}
+
 class RemoteImageDataLoader(private val client: HTTPClient) {
-    suspend fun loadFrom(url: URL) {
+    suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
         client.getFrom(url)
+        return Result.Failure(ImageDataLoaderError.CONNECTIVITY)
     }
 }
