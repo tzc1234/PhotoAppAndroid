@@ -63,7 +63,7 @@ class RemoteImageDataLoaderTest {
     }
 
     // region Helpers
-    private fun makSUT(stub: Result<ByteArray, Error> = Result.Success(anyData())): Pair<RemoteImageDataLoader, HTTPClientSpy> {
+    private fun makSUT(stub: Result<ByteArray, Error> = Result.Success(anyData())): Pair<ImageDataLoader, HTTPClientSpy> {
         val client = HTTPClientSpy(stub)
         return Pair(RemoteImageDataLoader(client), client)
     }
@@ -79,8 +79,12 @@ enum class ImageDataLoaderError : Error {
     INVALID_DATA
 }
 
-class RemoteImageDataLoader(private val client: HTTPClient) {
-    suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
+interface ImageDataLoader {
+    suspend fun loadFrom(url: URL): Result<ByteArray, Error>
+}
+
+class RemoteImageDataLoader(private val client: HTTPClient) : ImageDataLoader {
+    override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
         return when(val result = client.getFrom(url)) {
             is Result.Failure -> Result.Failure(ImageDataLoaderError.CONNECTIVITY)
             is Result.Success -> {
