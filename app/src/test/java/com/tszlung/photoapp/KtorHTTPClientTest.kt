@@ -2,7 +2,7 @@ package com.tszlung.photoapp
 
 import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.networking.HTTPClientError
-import com.tszlung.photoapp.networking.KtorHTTPClient
+import com.tszlung.photoapp.networking.infra.KtorHTTPClient
 import com.tszlung.photoapp.util.Result
 import io.ktor.client.engine.mock.*
 import io.ktor.client.request.HttpRequestData

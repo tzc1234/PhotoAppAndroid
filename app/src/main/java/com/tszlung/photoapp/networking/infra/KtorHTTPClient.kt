@@ -1,5 +1,7 @@
-package com.tszlung.photoapp.networking
+package com.tszlung.photoapp.networking.infra
 
+import com.tszlung.photoapp.networking.HTTPClient
+import com.tszlung.photoapp.networking.HTTPClientError
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import io.ktor.client.HttpClient
