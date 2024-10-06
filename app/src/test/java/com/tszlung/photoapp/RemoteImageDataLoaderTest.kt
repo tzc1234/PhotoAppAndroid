@@ -41,6 +41,17 @@ class RemoteImageDataLoaderTest {
     }
 
     @Test
+    fun `delivers invalid data error on client empty data`() = runBlocking {
+        val emptyData = ByteArray(size = 0)
+        val (sut, _) = makSUT(stub = Result.Success(emptyData))
+
+        when(val result = sut.loadFrom(anyURL())) {
+            is Result.Failure -> assertEquals(ImageDataLoaderError.INVALID_DATA, result.error)
+            is Result.Success -> fail("should not be success")
+        }
+    }
+
+    @Test
     fun `delivers data on received client data`() = runBlocking {
         val data = anyData()
         val (sut, _) = makSUT(stub = Result.Success(data))
@@ -64,14 +75,21 @@ class RemoteImageDataLoaderTest {
 }
 
 enum class ImageDataLoaderError : Error {
-    CONNECTIVITY
+    CONNECTIVITY,
+    INVALID_DATA
 }
 
 class RemoteImageDataLoader(private val client: HTTPClient) {
     suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
         return when(val result = client.getFrom(url)) {
             is Result.Failure -> Result.Failure(ImageDataLoaderError.CONNECTIVITY)
-            is Result.Success -> Result.Success(result.data)
+            is Result.Success -> {
+                if (result.data.isEmpty()) {
+                    Result.Failure(ImageDataLoaderError.INVALID_DATA)
+                } else {
+                    Result.Success(result.data)
+                }
+            }
         }
     }
 }
