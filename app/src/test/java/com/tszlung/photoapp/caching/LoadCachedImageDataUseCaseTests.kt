@@ -1,11 +1,10 @@
-package com.tszlung.photoapp
+package com.tszlung.photoapp.caching
 
+import com.tszlung.photoapp.caching.helpers.ImageDataStoreSpy
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import com.tszlung.photoapp.helpers.*
-import com.tszlung.photoapp.caching.ImageDataStore
-import com.tszlung.photoapp.caching.LocalImageDataLoader
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -33,9 +32,8 @@ class LoadCachedImageDataUseCaseTests {
     @Test
     fun `delivers data not found error when no cache`() = runBlocking {
         val (sut, _) = makeSUT()
-        val url = anyURL()
 
-        when (val result = sut.loadFrom(url)) {
+        when (val result = sut.loadFrom(anyURL())) {
             is Result.Failure -> assertEquals(
                 LocalImageDataLoader.LoaderError.DATA_NOT_FOUND,
                 result.error
@@ -75,19 +73,6 @@ class LoadCachedImageDataUseCaseTests {
         val store = ImageDataStoreSpy(stub)
         val sut = LocalImageDataLoader(store = store)
         return Pair(sut, store)
-    }
-
-    private class ImageDataStoreSpy(val stub: Result<ByteArray?, Error>) : ImageDataStore {
-        enum class StoreError : Error {
-            ANY_RETRIEVAL_ERROR
-        }
-
-        val requestURLs = mutableListOf<URL>()
-
-        override suspend fun retrieveDataFor(url: URL): Result<ByteArray?, Error> {
-            requestURLs.add(url)
-            return stub
-        }
     }
     // endregion
 }
