@@ -5,6 +5,7 @@ import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.caching.ImageDataStore
+import com.tszlung.photoapp.caching.LocalImageDataLoader
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -89,24 +90,4 @@ class LoadCachedImageDataUseCaseTests {
         }
     }
     // endregion
-}
-
-class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader {
-    enum class LoaderError : Error {
-        DATA_NOT_FOUND,
-        RETRIEVAL_ERROR
-    }
-
-    override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
-        return when (val result = store.retrieveDataFor(url)) {
-            is Result.Failure -> Result.Failure(LoaderError.RETRIEVAL_ERROR)
-            is Result.Success -> {
-                if (result.data != null) {
-                    Result.Success(result.data)
-                } else {
-                    Result.Failure(LoaderError.DATA_NOT_FOUND)
-                }
-            }
-        }
-    }
 }
