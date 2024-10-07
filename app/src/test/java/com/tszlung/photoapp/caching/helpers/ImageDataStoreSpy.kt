@@ -9,17 +9,19 @@ class ImageDataStoreSpy(val stub: Result<ByteArray?, Error>) : ImageDataStore {
         ANY_RETRIEVAL_ERROR
     }
 
-    data class Message(val data: ByteArray, val url: URL)
+    sealed interface Message {
+        data class Retrieval(val url: URL) : Message
+        data class Insertion(val data: ByteArray, val url: URL) : Message
+    }
 
     val messages = mutableListOf<Message>()
-    val requestURLs = mutableListOf<URL>()
 
     override suspend fun retrieveDataFor(url: URL): Result<ByteArray?, Error> {
-        requestURLs.add(url)
+        messages.add(Message.Retrieval(url))
         return stub
     }
 
     override suspend fun insert(data: ByteArray, url: URL) {
-        messages.add(Message(data, url))
+        messages.add(Message.Insertion(data, url))
     }
 }

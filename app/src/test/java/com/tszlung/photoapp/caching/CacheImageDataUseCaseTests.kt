@@ -15,7 +15,7 @@ class CacheImageDataUseCaseTests {
     fun `does not notify the store upon init`() {
         val (_, store) = makeSUT()
 
-        assertTrue(store.requestURLs.isEmpty())
+        assertTrue(store.messages.isEmpty())
     }
 
     @Test
@@ -26,7 +26,7 @@ class CacheImageDataUseCaseTests {
 
         sut.save(data = data, url = url)
 
-        assertEquals(listOf(ImageDataStoreSpy.Message(data, url)), store.messages)
+        assertEquals(listOf(ImageDataStoreSpy.Message.Insertion(data, url)), store.messages)
     }
 
     // region Helpers

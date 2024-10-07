@@ -16,7 +16,7 @@ class LoadCachedImageDataUseCaseTests {
     fun `does not notify the store upon init`() {
         val (_, store) = makeSUT()
 
-        assertTrue(store.requestURLs.isEmpty())
+        assertTrue(store.messages.isEmpty())
     }
 
     @Test
@@ -26,7 +26,7 @@ class LoadCachedImageDataUseCaseTests {
 
         sut.loadFrom(url)
 
-        assertEquals(listOf(url), store.requestURLs)
+        assertEquals(listOf(ImageDataStoreSpy.Message.Retrieval(url)), store.messages)
     }
 
     @Test
