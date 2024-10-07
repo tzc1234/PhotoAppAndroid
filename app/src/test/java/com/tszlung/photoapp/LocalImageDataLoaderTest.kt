@@ -1,6 +1,5 @@
 package com.tszlung.photoapp
 
-import androidx.compose.runtime.mutableStateOf
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
@@ -44,6 +43,20 @@ class LocalImageDataLoaderTest {
         }
     }
 
+    @Test
+    fun `delivers retrieval error on store error after cache retrieval`() = runBlocking {
+        val (sut, _) = makeSUT(stub = Result.Failure(ImageDataStoreSpy.StoreError.ANY_RETRIEVAL_ERROR))
+
+        when (val result = sut.loadFrom(anyURL())) {
+            is Result.Failure -> assertEquals(
+                LocalImageDataLoader.LoaderError.RETRIEVAL_ERROR,
+                result.error
+            )
+
+            is Result.Success -> fail("should not be success")
+        }
+    }
+
     // region Helpers
     private fun makeSUT(stub: Result<ByteArray?, Error> = Result.Success(null)): Pair<ImageDataLoader, ImageDataStoreSpy> {
         val store = ImageDataStoreSpy(stub)
@@ -52,11 +65,15 @@ class LocalImageDataLoaderTest {
     }
 
     private class ImageDataStoreSpy(val stub: Result<ByteArray?, Error>) : ImageDataStore {
+        enum class StoreError : Error {
+            ANY_RETRIEVAL_ERROR
+        }
+
         val requestURLs = mutableListOf<URL>()
 
         override suspend fun retrieveDataFor(url: URL): Result<ByteArray?, Error> {
             requestURLs.add(url)
-            return Result.Success(null)
+            return stub
         }
     }
     // endregion
@@ -68,11 +85,20 @@ interface ImageDataStore {
 
 class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader {
     enum class LoaderError : Error {
-        DATA_NOT_FOUND
+        DATA_NOT_FOUND,
+        RETRIEVAL_ERROR
     }
 
     override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
-        store.retrieveDataFor(url)
-        return Result.Failure(LoaderError.DATA_NOT_FOUND)
+        return when (val result = store.retrieveDataFor(url)) {
+            is Result.Failure -> Result.Failure(LoaderError.RETRIEVAL_ERROR)
+            is Result.Success -> {
+                if (result.data != null) {
+                    Result.Success(result.data)
+                } else {
+                    Result.Failure(LoaderError.DATA_NOT_FOUND)
+                }
+            }
+        }
     }
 }
