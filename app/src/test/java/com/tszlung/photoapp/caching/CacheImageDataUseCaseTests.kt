@@ -17,12 +17,12 @@ class CacheImageDataUseCaseTests {
     }
 
     @Test
-    fun `delivers insertion error on store error after cache insertion`() = runBlocking {
+    fun `delivers failed error on store error after cache insertion`() = runBlocking {
         val (sut, _) = makeSUT(insertionStub = Result.Failure(ImageDataStoreSpy.StoreError.ANY_ERROR))
 
         when (val result = sut.save(data = anyData(), url = anyURL())) {
             is Result.Failure -> assertEquals(
-                LocalImageDataLoader.SaveError.INSERTION_ERROR,
+                LocalImageDataLoader.SaveError.FAILED,
                 result.error
             )
 

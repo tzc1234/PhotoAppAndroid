@@ -24,12 +24,12 @@ class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader 
     }
 
     enum class SaveError : Error {
-        INSERTION_ERROR,
+        FAILED
     }
 
     suspend fun save(data: ByteArray, url: URL): Result<Unit, Error> {
         return when (store.insert(data, url)) {
-            is Result.Failure -> Result.Failure(SaveError.INSERTION_ERROR)
+            is Result.Failure -> Result.Failure(SaveError.FAILED)
             is Result.Success -> Result.Success(Unit)
         }
     }
