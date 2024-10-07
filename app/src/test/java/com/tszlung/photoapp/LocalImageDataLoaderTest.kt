@@ -1,5 +1,6 @@
 package com.tszlung.photoapp
 
+import androidx.compose.runtime.mutableStateOf
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
@@ -15,13 +16,23 @@ class LocalImageDataLoaderTest {
     fun `does not notify the store upon init`() {
         val (_, store) = makeSUT()
 
-        assertTrue(store.messages.isEmpty())
+        assertTrue(store.requestURLs.isEmpty())
+    }
+
+    @Test
+    fun `requests data with url from store`() = runBlocking {
+        val (sut, store) = makeSUT()
+        val url = URL("https://a-url.com")
+
+        sut.loadFrom(url)
+
+        assertEquals(listOf(url), store.requestURLs)
     }
 
     @Test
     fun `delivers data not found error when no cache`() = runBlocking {
         val (sut, _) = makeSUT()
-        val url = URL("https://a-url.com")
+        val url = anyURL()
 
         when (val result = sut.loadFrom(url)) {
             is Result.Failure -> assertEquals(
@@ -34,19 +45,26 @@ class LocalImageDataLoaderTest {
     }
 
     // region Helpers
-    private fun makeSUT(stub: Result<ByteArray?, Error> = Result.Success(anyData())): Pair<ImageDataLoader, ImageDataStoreSpy> {
+    private fun makeSUT(stub: Result<ByteArray?, Error> = Result.Success(null)): Pair<ImageDataLoader, ImageDataStoreSpy> {
         val store = ImageDataStoreSpy(stub)
         val sut = LocalImageDataLoader(store = store)
         return Pair(sut, store)
     }
 
     private class ImageDataStoreSpy(val stub: Result<ByteArray?, Error>) : ImageDataStore {
-        val messages = listOf<Any>()
+        val requestURLs = mutableListOf<URL>()
+
+        override suspend fun retrieveDataFor(url: URL): Result<ByteArray?, Error> {
+            requestURLs.add(url)
+            return Result.Success(null)
+        }
     }
     // endregion
 }
 
-interface ImageDataStore
+interface ImageDataStore {
+    suspend fun retrieveDataFor(url: URL): Result<ByteArray?, Error>
+}
 
 class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader {
     enum class LoaderError : Error {
@@ -54,6 +72,7 @@ class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader 
     }
 
     override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
+        store.retrieveDataFor(url)
         return Result.Failure(LoaderError.DATA_NOT_FOUND)
     }
 }

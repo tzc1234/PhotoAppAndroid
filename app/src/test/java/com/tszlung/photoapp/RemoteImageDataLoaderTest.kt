@@ -1,8 +1,7 @@
 package com.tszlung.photoapp
 
 import com.tszlung.photoapp.features.ImageDataLoader
-import com.tszlung.photoapp.helpers.HTTPClientSpy
-import com.tszlung.photoapp.helpers.anyURL
+import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.networking.HTTPClientError
 import com.tszlung.photoapp.networking.RemoteImageDataLoader
 import com.tszlung.photoapp.util.*
@@ -67,7 +66,5 @@ class RemoteImageDataLoaderTest {
         val client = HTTPClientSpy(stub)
         return Pair(RemoteImageDataLoader(client), client)
     }
-
-    private fun anyData() = "any".toByteArray(Charsets.UTF_8)
     // endregion
 }
