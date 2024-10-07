@@ -57,6 +57,17 @@ class LocalImageDataLoaderTest {
         }
     }
 
+    @Test
+    fun `delivers stored cache data`() = runBlocking {
+        val data = anyData()
+        val (sut, _) = makeSUT(stub = Result.Success(data))
+
+        when (val result = sut.loadFrom(anyURL())) {
+            is Result.Failure -> fail("should not be failure")
+            is Result.Success -> assertEquals(data, result.data)
+        }
+    }
+
     // region Helpers
     private fun makeSUT(stub: Result<ByteArray?, Error> = Result.Success(null)): Pair<ImageDataLoader, ImageDataStoreSpy> {
         val store = ImageDataStoreSpy(stub)
