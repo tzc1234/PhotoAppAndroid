@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.net.URL
 
-class LocalImageDataLoaderTest {
+class LoadCachedImageDataUseCaseTests {
     @Test
     fun `does not notify the store upon init`() {
         val (_, store) = makeSUT()
