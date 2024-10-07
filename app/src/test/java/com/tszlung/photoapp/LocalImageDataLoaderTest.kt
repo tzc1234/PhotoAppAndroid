@@ -11,18 +11,15 @@ import java.net.URL
 
 class LocalImageDataLoaderTest {
     @Test
-    @Suppress("UnusedVariable")
     fun `does not notify the store upon init`() {
-        val store = ImageDataStoreSpy()
-        @Suppress("Unused") val sut = LocalImageDataLoader(store = store)
+        val (_, store) = makeSUT()
 
         assertTrue(store.messages.isEmpty())
     }
 
     @Test
     fun `delivers data not found error when no cache`() = runBlocking {
-        val store = ImageDataStoreSpy()
-        val sut = LocalImageDataLoader(store = store)
+        val (sut, _) = makeSUT()
         val url = URL("https://a-url.com")
 
         when (val result = sut.loadFrom(url)) {
@@ -36,6 +33,12 @@ class LocalImageDataLoaderTest {
     }
 
     // region Helpers
+    private fun makeSUT(): Pair<ImageDataLoader,ImageDataStoreSpy> {
+        val store = ImageDataStoreSpy()
+        val sut = LocalImageDataLoader(store = store)
+        return Pair(sut, store)
+    }
+
     private class ImageDataStoreSpy : ImageDataStore {
         val messages = listOf<Any>()
     }
