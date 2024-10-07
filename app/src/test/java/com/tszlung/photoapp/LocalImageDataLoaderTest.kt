@@ -3,6 +3,7 @@ package com.tszlung.photoapp
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
+import com.tszlung.photoapp.helpers.*
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -33,13 +34,13 @@ class LocalImageDataLoaderTest {
     }
 
     // region Helpers
-    private fun makeSUT(): Pair<ImageDataLoader,ImageDataStoreSpy> {
-        val store = ImageDataStoreSpy()
+    private fun makeSUT(stub: Result<ByteArray?, Error> = Result.Success(anyData())): Pair<ImageDataLoader, ImageDataStoreSpy> {
+        val store = ImageDataStoreSpy(stub)
         val sut = LocalImageDataLoader(store = store)
         return Pair(sut, store)
     }
 
-    private class ImageDataStoreSpy : ImageDataStore {
+    private class ImageDataStoreSpy(val stub: Result<ByteArray?, Error>) : ImageDataStore {
         val messages = listOf<Any>()
     }
     // endregion
