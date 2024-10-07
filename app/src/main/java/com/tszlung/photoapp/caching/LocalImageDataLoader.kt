@@ -7,12 +7,12 @@ import java.net.URL
 class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader {
     enum class LoaderError : Error {
         DATA_NOT_FOUND,
-        RETRIEVAL_ERROR
+        FAILED
     }
 
     override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
         return when (val result = store.retrieveDataFor(url)) {
-            is Result.Failure -> Result.Failure(LoaderError.RETRIEVAL_ERROR)
+            is Result.Failure -> Result.Failure(LoaderError.FAILED)
             is Result.Success -> {
                 if (result.data != null) {
                     Result.Success(result.data)
