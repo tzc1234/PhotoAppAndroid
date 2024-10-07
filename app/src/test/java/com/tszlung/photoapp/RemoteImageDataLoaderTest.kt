@@ -1,7 +1,6 @@
 package com.tszlung.photoapp
 
 import com.tszlung.photoapp.features.ImageDataLoader
-import com.tszlung.photoapp.features.ImageDataLoaderError
 import com.tszlung.photoapp.helpers.HTTPClientSpy
 import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.networking.HTTPClientError
@@ -36,7 +35,7 @@ class RemoteImageDataLoaderTest {
         val (sut, _) = makSUT(stub = Result.Failure(HTTPClientError.UNKNOWN))
 
         when (val result = sut.loadFrom(anyURL())) {
-            is Result.Failure -> assertEquals(ImageDataLoaderError.CONNECTIVITY, result.error)
+            is Result.Failure -> assertEquals(RemoteImageDataLoader.LoaderError.CONNECTIVITY, result.error)
             is Result.Success -> fail("should not be success")
         }
     }
@@ -47,7 +46,7 @@ class RemoteImageDataLoaderTest {
         val (sut, _) = makSUT(stub = Result.Success(emptyData))
 
         when (val result = sut.loadFrom(anyURL())) {
-            is Result.Failure -> assertEquals(ImageDataLoaderError.INVALID_DATA, result.error)
+            is Result.Failure -> assertEquals(RemoteImageDataLoader.LoaderError.INVALID_DATA, result.error)
             is Result.Success -> fail("should not be success")
         }
     }
