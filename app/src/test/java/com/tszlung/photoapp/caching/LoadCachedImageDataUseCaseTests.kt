@@ -45,7 +45,7 @@ class LoadCachedImageDataUseCaseTests {
 
     @Test
     fun `delivers retrieval error on store error after cache retrieval`() = runBlocking {
-        val (sut, _) = makeSUT(stub = Result.Failure(ImageDataStoreSpy.StoreError.ANY_RETRIEVAL_ERROR))
+        val (sut, _) = makeSUT(stub = Result.Failure(ImageDataStoreSpy.StoreError.ANY_ERROR))
 
         when (val result = sut.loadFrom(anyURL())) {
             is Result.Failure -> assertEquals(

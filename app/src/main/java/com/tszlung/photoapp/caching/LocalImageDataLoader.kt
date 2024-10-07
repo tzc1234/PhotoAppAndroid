@@ -10,6 +10,10 @@ class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader 
         RETRIEVAL_ERROR
     }
 
+    enum class SaveError : Error {
+        INSERTION_ERROR,
+    }
+
     override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
         return when (val result = store.retrieveDataFor(url)) {
             is Result.Failure -> Result.Failure(LoaderError.RETRIEVAL_ERROR)
@@ -23,7 +27,10 @@ class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader 
         }
     }
 
-    suspend fun save(data: ByteArray, url: URL) {
-        store.insert(data, url)
+    suspend fun save(data: ByteArray, url: URL): Result<Unit, Error> {
+        return when (store.insert(data, url)) {
+            is Result.Failure -> Result.Failure(SaveError.INSERTION_ERROR)
+            is Result.Success -> Result.Success(Unit)
+        }
     }
 }

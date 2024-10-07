@@ -4,9 +4,12 @@ import com.tszlung.photoapp.caching.ImageDataStore
 import com.tszlung.photoapp.util.*
 import java.net.URL
 
-class ImageDataStoreSpy(val stub: Result<ByteArray?, Error>) : ImageDataStore {
+class ImageDataStoreSpy(
+    val stub: Result<ByteArray?, Error> = Result.Success(null),
+    val insertionStub: Result<Unit, Error> = Result.Success(Unit),
+) : ImageDataStore {
     enum class StoreError : Error {
-        ANY_RETRIEVAL_ERROR
+        ANY_ERROR
     }
 
     sealed interface Message {
@@ -21,7 +24,8 @@ class ImageDataStoreSpy(val stub: Result<ByteArray?, Error>) : ImageDataStore {
         return stub
     }
 
-    override suspend fun insert(data: ByteArray, url: URL) {
+    override suspend fun insert(data: ByteArray, url: URL): Result<Unit, Error> {
         messages.add(Message.Insertion(data, url))
+        return insertionStub
     }
 }
