@@ -7,15 +7,19 @@ class LocalImageDataLoaderTest {
     @Test
     @Suppress("UnusedVariable")
     fun `does not notify the store upon init`() {
-        val store = ImageDataCacheStoreSpy()
+        val store = ImageDataStoreSpy()
         @Suppress("Unused") val sut = LocalImageDataLoader(store = store)
 
         assertTrue(store.messages.isEmpty())
     }
+
+    // region Helpers
+    private class ImageDataStoreSpy : ImageDataStore {
+        val messages = listOf<Any>()
+    }
+    // endregion
 }
 
-class ImageDataCacheStoreSpy {
-    val messages = listOf<Any>()
-}
+interface ImageDataStore
 
-class LocalImageDataLoader(private val store: ImageDataCacheStoreSpy)
+class LocalImageDataLoader(private val store: ImageDataStore)
