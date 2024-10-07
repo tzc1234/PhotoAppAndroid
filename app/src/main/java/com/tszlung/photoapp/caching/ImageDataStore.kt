@@ -5,4 +5,5 @@ import java.net.URL
 
 interface ImageDataStore {
     suspend fun retrieveDataFor(url: URL): Result<ByteArray?, Error>
+    suspend fun insert(data: ByteArray, url: URL)
 }

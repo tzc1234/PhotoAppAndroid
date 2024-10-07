@@ -22,4 +22,8 @@ class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader 
             }
         }
     }
+
+    suspend fun save(data: ByteArray, url: URL) {
+        store.insert(data, url)
+    }
 }
