@@ -4,6 +4,7 @@ import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import com.tszlung.photoapp.helpers.*
+import com.tszlung.photoapp.caching.ImageDataStore
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -88,10 +89,6 @@ class LoadCachedImageDataUseCaseTests {
         }
     }
     // endregion
-}
-
-interface ImageDataStore {
-    suspend fun retrieveDataFor(url: URL): Result<ByteArray?, Error>
 }
 
 class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader {
