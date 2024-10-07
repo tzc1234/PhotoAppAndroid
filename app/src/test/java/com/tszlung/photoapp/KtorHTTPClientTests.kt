@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.net.URL
 
-class KtorHTTPClientTest {
+class KtorHTTPClientTests {
     @Test
     fun `requests URL and method from engine`() = runBlocking {
         val url = URL("https://a-url.com")

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.net.URL
 
-class RemoteImageDataLoaderTest {
+class RemoteImageDataLoaderTests {
     @Test
     fun `loader does not notify client upon init`() {
         val (_, client) = makSUT()
