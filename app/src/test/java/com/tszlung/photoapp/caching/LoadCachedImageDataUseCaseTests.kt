@@ -45,7 +45,7 @@ class LoadCachedImageDataUseCaseTests {
 
     @Test
     fun `delivers retrieval error on store error after cache retrieval`() = runBlocking {
-        val (sut, _) = makeSUT(stub = Result.Failure(ImageDataStoreSpy.StoreError.ANY_ERROR))
+        val (sut, _) = makeSUT(retrievalStub = Result.Failure(ImageDataStoreSpy.StoreError.ANY_ERROR))
 
         when (val result = sut.loadFrom(anyURL())) {
             is Result.Failure -> assertEquals(
@@ -60,7 +60,7 @@ class LoadCachedImageDataUseCaseTests {
     @Test
     fun `delivers stored cache data`() = runBlocking {
         val data = anyData()
-        val (sut, _) = makeSUT(stub = Result.Success(data))
+        val (sut, _) = makeSUT(retrievalStub = Result.Success(data))
 
         when (val result = sut.loadFrom(anyURL())) {
             is Result.Failure -> fail("should not be failure")
@@ -69,8 +69,8 @@ class LoadCachedImageDataUseCaseTests {
     }
 
     // region Helpers
-    private fun makeSUT(stub: Result<ByteArray?, Error> = Result.Success(null)): Pair<ImageDataLoader, ImageDataStoreSpy> {
-        val store = ImageDataStoreSpy(stub)
+    private fun makeSUT(retrievalStub: Result<ByteArray?, Error> = Result.Success(null)): Pair<ImageDataLoader, ImageDataStoreSpy> {
+        val store = ImageDataStoreSpy(retrievalStub)
         val sut = LocalImageDataLoader(store = store)
         return Pair(sut, store)
     }

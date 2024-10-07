@@ -1,8 +1,7 @@
 package com.tszlung.photoapp.caching
 
 import com.tszlung.photoapp.caching.helpers.ImageDataStoreSpy
-import com.tszlung.photoapp.helpers.anyData
-import com.tszlung.photoapp.helpers.anyURL
+import com.tszlung.photoapp.helpers.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
@@ -18,17 +17,6 @@ class CacheImageDataUseCaseTests {
     }
 
     @Test
-    fun `save data with url to store`() = runBlocking {
-        val (sut, store) = makeSUT()
-        val data = anyData()
-        val url = anyURL()
-
-        sut.save(data = data, url = url)
-
-        assertEquals(listOf(ImageDataStoreSpy.Message.Insertion(data, url)), store.messages)
-    }
-
-    @Test
     fun `delivers insertion error on store error after cache insertion`() = runBlocking {
         val (sut, _) = makeSUT(insertionStub = Result.Failure(ImageDataStoreSpy.StoreError.ANY_ERROR))
 
@@ -40,6 +28,17 @@ class CacheImageDataUseCaseTests {
 
             is Result.Success -> fail("should not be success")
         }
+    }
+
+    @Test
+    fun `save data with url to store`() = runBlocking {
+        val (sut, store) = makeSUT()
+        val data = anyData()
+        val url = anyURL()
+
+        sut.save(data = data, url = url)
+
+        assertEquals(listOf(ImageDataStoreSpy.Message.Insertion(data, url)), store.messages)
     }
 
     // region Helpers

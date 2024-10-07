@@ -5,7 +5,7 @@ import com.tszlung.photoapp.util.*
 import java.net.URL
 
 class ImageDataStoreSpy(
-    val stub: Result<ByteArray?, Error> = Result.Success(null),
+    val retrievalStub: Result<ByteArray?, Error> = Result.Success(null),
     val insertionStub: Result<Unit, Error> = Result.Success(Unit),
 ) : ImageDataStore {
     enum class StoreError : Error {
@@ -21,7 +21,7 @@ class ImageDataStoreSpy(
 
     override suspend fun retrieveDataFor(url: URL): Result<ByteArray?, Error> {
         messages.add(Message.Retrieval(url))
-        return stub
+        return retrievalStub
     }
 
     override suspend fun insert(data: ByteArray, url: URL): Result<Unit, Error> {
