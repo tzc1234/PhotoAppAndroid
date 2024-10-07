@@ -1,7 +1,11 @@
 package com.tszlung
 
+import com.tszlung.photoapp.features.ImageDataLoader
+import com.tszlung.photoapp.util.Error
+import com.tszlung.photoapp.util.Result
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.*
+import java.net.URL
 
 class LocalImageDataLoaderTest {
     @Test
@@ -22,4 +26,8 @@ class LocalImageDataLoaderTest {
 
 interface ImageDataStore
 
-class LocalImageDataLoader(private val store: ImageDataStore)
+class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader {
+    override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
+        TODO("Not yet implemented")
+    }
+}
