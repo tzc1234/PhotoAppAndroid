@@ -50,6 +50,23 @@ class LruImageDataStoreTests {
         assert(Result.Success(data), sut.retrieveDataFor(url))
     }
 
+    @Test
+    fun `inserts new data overrides the old cached data`() = runBlocking {
+        val sut = LruImageDataStore()
+        val oldData = "old".toByteArray(Charsets.UTF_8)
+        val newData = "new".toByteArray(Charsets.UTF_8)
+        val otherData = "other".toByteArray(Charsets.UTF_8)
+        val aURL = URL("https://a-url.com")
+        val otherURL = URL("https://other-url.com")
+
+        insert(oldData, aURL, sut)
+        insert(newData, aURL, sut)
+        insert(otherData, otherURL, sut)
+
+        assert(Result.Success(newData), sut.retrieveDataFor(aURL))
+        assert(Result.Success(otherData), sut.retrieveDataFor(otherURL))
+    }
+
     // region Helpers
     private fun assert(expected: Result<ByteArray?, Error>, result: Result<ByteArray?, Error>) {
         assertEquals(expected, result)
