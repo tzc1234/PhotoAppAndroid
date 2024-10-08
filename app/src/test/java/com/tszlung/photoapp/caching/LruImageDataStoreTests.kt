@@ -1,5 +1,7 @@
 package com.tszlung.photoapp.caching
 
+import androidx.collection.LruCache
+import com.tszlung.photoapp.helpers.anyData
 import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
@@ -27,22 +29,42 @@ class LruImageDataStoreTests {
         assert(Result.Success(null), sut.retrieveDataFor(url))
     }
 
+    @Test
+    fun `delivers data on cache data`() = runBlocking {
+        val sut = LruImageDataStore()
+        val data = anyData()
+        val url = anyURL()
+
+        insert(data, url, sut)
+        assert(Result.Success(data), sut.retrieveDataFor(url))
+    }
+
     // region Helpers
     private fun assert(expected: Result<ByteArray?, Error>, result: Result<ByteArray?, Error>) {
         assertEquals(expected, result)
+    }
+
+    private suspend fun insert(data: ByteArray, url: URL, sut: LruImageDataStore) {
+        when (val result = sut.insert(data, url)) {
+            is Result.Failure -> fail("should not be failure")
+            is Result.Success -> assertEquals(Unit, result.data)
+        }
     }
     // endregion
 }
 
 class LruImageDataStore : ImageDataStore {
+    private val cache = LruCache<URL, ByteArray>(maxSize = 8 * 1024 * 1024) // 8MiB
+
     override suspend fun retrieveDataFor(url: URL): Result<ByteArray?, Error> {
-        return Result.Success(null)
+        return Result.Success(cache[url])
     }
 
     override suspend fun insert(
         data: ByteArray,
         url: URL
     ): Result<Unit, Error> {
-        TODO("Not yet implemented")
+        cache.put(key = url, value = data)
+        return Result.Success(Unit)
     }
 }
