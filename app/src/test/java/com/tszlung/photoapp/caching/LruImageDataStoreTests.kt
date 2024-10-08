@@ -39,6 +39,17 @@ class LruImageDataStoreTests {
         assert(Result.Success(data), sut.retrieveDataFor(url))
     }
 
+    @Test
+    fun `retrieves twice delivers cached data, no side effects`() = runBlocking {
+        val sut = LruImageDataStore()
+        val data = anyData()
+        val url = anyURL()
+
+        insert(data, url, sut)
+        assert(Result.Success(data), sut.retrieveDataFor(url))
+        assert(Result.Success(data), sut.retrieveDataFor(url))
+    }
+
     // region Helpers
     private fun assert(expected: Result<ByteArray?, Error>, result: Result<ByteArray?, Error>) {
         assertEquals(expected, result)
