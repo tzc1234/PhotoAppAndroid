@@ -15,10 +15,7 @@ class LruImageDataStoreTests {
         val sut = LruImageDataStore()
         val url = anyURL()
 
-        when (val result = sut.retrieveDataFor(url)) {
-            is Result.Failure -> fail("should not be failure")
-            is Result.Success -> assertNull(result.data)
-        }
+        assert(Result.Success(null), sut.retrieveDataFor(url))
     }
 
     @Test
@@ -26,16 +23,15 @@ class LruImageDataStoreTests {
         val sut = LruImageDataStore()
         val url = anyURL()
 
-        when (val firstResult = sut.retrieveDataFor(url)) {
-            is Result.Failure -> fail("should not be failure")
-            is Result.Success -> assertNull(firstResult.data)
-        }
-
-        when (val lastResult = sut.retrieveDataFor(url)) {
-            is Result.Failure -> fail("should not be failure")
-            is Result.Success -> assertNull(lastResult.data)
-        }
+        assert(Result.Success(null), sut.retrieveDataFor(url))
+        assert(Result.Success(null), sut.retrieveDataFor(url))
     }
+
+    // region Helpers
+    private fun assert(expected: Result<ByteArray?, Error>, result: Result<ByteArray?, Error>) {
+        assertEquals(expected, result)
+    }
+    // endregion
 }
 
 class LruImageDataStore : ImageDataStore {
