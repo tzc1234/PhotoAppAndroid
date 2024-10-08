@@ -1,9 +1,7 @@
 package com.tszlung.photoapp
 
 import com.tszlung.photoapp.features.ImageDataLoader
-import com.tszlung.photoapp.features.ImageDataLoaderError
-import com.tszlung.photoapp.helpers.HTTPClientSpy
-import com.tszlung.photoapp.helpers.anyURL
+import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.networking.HTTPClientError
 import com.tszlung.photoapp.networking.RemoteImageDataLoader
 import com.tszlung.photoapp.util.*
@@ -13,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import java.net.URL
 
-class RemoteImageDataLoaderTest {
+class RemoteImageDataLoaderTests {
     @Test
     fun `loader does not notify client upon init`() {
         val (_, client) = makSUT()
@@ -35,8 +33,8 @@ class RemoteImageDataLoaderTest {
     fun `delivers connectivity error on client error`() = runBlocking {
         val (sut, _) = makSUT(stub = Result.Failure(HTTPClientError.UNKNOWN))
 
-        when(val result = sut.loadFrom(anyURL())) {
-            is Result.Failure -> assertEquals(ImageDataLoaderError.CONNECTIVITY, result.error)
+        when (val result = sut.loadFrom(anyURL())) {
+            is Result.Failure -> assertEquals(RemoteImageDataLoader.LoaderError.CONNECTIVITY, result.error)
             is Result.Success -> fail("should not be success")
         }
     }
@@ -46,8 +44,8 @@ class RemoteImageDataLoaderTest {
         val emptyData = ByteArray(size = 0)
         val (sut, _) = makSUT(stub = Result.Success(emptyData))
 
-        when(val result = sut.loadFrom(anyURL())) {
-            is Result.Failure -> assertEquals(ImageDataLoaderError.INVALID_DATA, result.error)
+        when (val result = sut.loadFrom(anyURL())) {
+            is Result.Failure -> assertEquals(RemoteImageDataLoader.LoaderError.INVALID_DATA, result.error)
             is Result.Success -> fail("should not be success")
         }
     }
@@ -57,7 +55,7 @@ class RemoteImageDataLoaderTest {
         val data = anyData()
         val (sut, _) = makSUT(stub = Result.Success(data))
 
-        when(val result = sut.loadFrom(anyURL())) {
+        when (val result = sut.loadFrom(anyURL())) {
             is Result.Failure -> fail("should not be failure")
             is Result.Success -> assertEquals(data, result.data)
         }
@@ -67,10 +65,6 @@ class RemoteImageDataLoaderTest {
     private fun makSUT(stub: Result<ByteArray, Error> = Result.Success(anyData())): Pair<ImageDataLoader, HTTPClientSpy> {
         val client = HTTPClientSpy(stub)
         return Pair(RemoteImageDataLoader(client), client)
-    }
-
-    private fun anyData(): ByteArray {
-        return "any".toByteArray(Charsets.UTF_8)
     }
     // endregion
 }

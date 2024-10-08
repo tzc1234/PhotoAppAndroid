@@ -1,4 +1,3 @@
 package com.tszlung.photoapp.util
 
-interface Error {
-}
+interface Error

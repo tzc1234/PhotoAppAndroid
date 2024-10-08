@@ -15,7 +15,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class RemotePhotoLoaderTest {
+class RemotePhotoLoaderTests {
     @Test
     @Suppress("UNUSED_VARIABLE")
     fun `does not notify client upon init`() {
