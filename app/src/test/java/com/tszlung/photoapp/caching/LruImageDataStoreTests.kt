@@ -20,6 +20,22 @@ class LruImageDataStoreTests {
             is Result.Success -> assertNull(result.data)
         }
     }
+
+    @Test
+    fun `retrieves twice delivers null data when no cache exist, no side effects`() = runBlocking {
+        val sut = LruImageDataStore()
+        val url = anyURL()
+
+        when (val firstResult = sut.retrieveDataFor(url)) {
+            is Result.Failure -> fail("should not be failure")
+            is Result.Success -> assertNull(firstResult.data)
+        }
+
+        when (val lastResult = sut.retrieveDataFor(url)) {
+            is Result.Failure -> fail("should not be failure")
+            is Result.Success -> assertNull(lastResult.data)
+        }
+    }
 }
 
 class LruImageDataStore : ImageDataStore {
