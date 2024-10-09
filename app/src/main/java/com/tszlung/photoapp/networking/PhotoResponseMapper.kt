@@ -1,7 +1,7 @@
 package com.tszlung.photoapp.networking
 
 import com.tszlung.photoapp.features.*
-import com.tszlung.photoapp.networking.RemotePhotoLoader.LoaderError
+import com.tszlung.photoapp.networking.RemotePhotosLoader.LoaderError
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import kotlinx.serialization.json.Json
