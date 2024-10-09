@@ -95,15 +95,6 @@ class RemotePhotoLoaderTests {
         return Pair(sut, client)
     }
 
-    private fun makePhoto(index: Int) = Photo(
-        id = index.toString(),
-        author = "author$index",
-        width = index,
-        height = index,
-        webURL = URL("https://web-url-$index.com"),
-        imageURL = URL("https://url-$index.com")
-    )
-
     private fun List<Photo>.toData(): ByteArray {
         val response = map {
             PhotoResponse(
