@@ -38,6 +38,7 @@ class PhotosViewModelTests {
 
         sut.loadPhotos()
         assertTrue(sut.isLoading)
+        assertTrue(sut.photos.isEmpty())
 
         advanceUntilIdle()
 
@@ -45,7 +46,26 @@ class PhotosViewModelTests {
         assertTrue(sut.photos.isEmpty())
     }
 
+    @Test
+    fun `loads photos delivers error message when received error from loader`() = runTest {
+        val photosLoader = PhotosLoaderStub(Result.Failure(LoaderError.ANY))
+        val sut = PhotosViewModel(photosLoader)
+
+        sut.loadPhotos()
+        assertTrue(sut.isLoading)
+        assertNull(sut.errorMessage)
+
+        advanceUntilIdle()
+
+        assertFalse(sut.isLoading)
+        assertEquals("Error occurred, please try again.", sut.errorMessage)
+    }
+
     // region Helpers
+    private enum class LoaderError : Error {
+        ANY
+    }
+
     private class PhotosLoaderStub(
         private val stub: Result<List<Photo>, Error> = Result.Success(
             listOf()
@@ -70,7 +90,7 @@ class PhotosViewModel(private val loader: PhotosLoader) : ViewModel() {
         isLoading = true
         viewModelScope.launch {
             when (val result = loader.load()) {
-                is Result.Failure -> TODO()
+                is Result.Failure -> errorMessage = "Error occurred, please try again."
                 is Result.Success -> photos = result.data
             }
 
