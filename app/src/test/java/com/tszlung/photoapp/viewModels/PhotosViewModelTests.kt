@@ -23,8 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class PhotosViewModelTests {
     @Test
     fun `init view model successfully`() {
-        val photosLoader = PhotosLoaderStub()
-        val sut = PhotosViewModel(photosLoader)
+        val sut = makeSUT()
 
         assertFalse(sut.isLoading)
         assertTrue(sut.photos.isEmpty())
@@ -33,8 +32,7 @@ class PhotosViewModelTests {
 
     @Test
     fun `loads photos delivers empty photos when received empty photos`() = runTest {
-        val photosLoader = PhotosLoaderStub(Result.Success(listOf()))
-        val sut = PhotosViewModel(photosLoader)
+        val sut = makeSUT(Result.Success(listOf()))
 
         sut.loadPhotos()
         assertTrue(sut.isLoading)
@@ -48,8 +46,7 @@ class PhotosViewModelTests {
 
     @Test
     fun `loads photos delivers error message when received error from loader`() = runTest {
-        val photosLoader = PhotosLoaderStub(Result.Failure(LoaderError.ANY))
-        val sut = PhotosViewModel(photosLoader)
+        val sut = makeSUT(Result.Failure(LoaderError.ANY))
 
         sut.loadPhotos()
         assertTrue(sut.isLoading)
@@ -62,15 +59,16 @@ class PhotosViewModelTests {
     }
 
     // region Helpers
+    private fun makeSUT(stub: Result<List<Photo>, Error> = Result.Success(listOf())): PhotosViewModel {
+        val photosLoader = PhotosLoaderStub(stub)
+        return PhotosViewModel(photosLoader)
+    }
+
     private enum class LoaderError : Error {
         ANY
     }
 
-    private class PhotosLoaderStub(
-        private val stub: Result<List<Photo>, Error> = Result.Success(
-            listOf()
-        )
-    ) : PhotosLoader {
+    private class PhotosLoaderStub(private val stub: Result<List<Photo>, Error>) : PhotosLoader {
         override suspend fun load(): Result<List<Photo>, Error> {
             return stub
         }
