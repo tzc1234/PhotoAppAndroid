@@ -18,11 +18,15 @@ class PhotosViewModel(private val loader: PhotosLoader) : ViewModel() {
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
+    companion object {
+        const val ERROR_MESSAGE = "Error occurred, please try again."
+    }
+
     fun loadPhotos() {
         isLoading = true
         viewModelScope.launch {
             when (val result = loader.load()) {
-                is Result.Failure -> errorMessage = "Error occurred, please try again."
+                is Result.Failure -> errorMessage = ERROR_MESSAGE
                 is Result.Success -> {
                     photos = result.data
                     errorMessage = null
