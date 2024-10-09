@@ -1,10 +1,5 @@
 package com.tszlung.photoapp.viewModels
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.features.PhotosLoader
 import com.tszlung.photoapp.helpers.makePhoto
@@ -12,7 +7,6 @@ import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import com.tszlung.photoapp.viewModels.helpers.MainCoroutineExtension
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
@@ -109,28 +103,4 @@ class PhotosViewModelTests {
         }
     }
     // endregion
-}
-
-class PhotosViewModel(private val loader: PhotosLoader) : ViewModel() {
-    var isLoading by mutableStateOf(false)
-        private set
-    var photos by mutableStateOf(listOf<Photo>())
-        private set
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
-
-    fun loadPhotos() {
-        isLoading = true
-        viewModelScope.launch {
-            when (val result = loader.load()) {
-                is Result.Failure -> errorMessage = "Error occurred, please try again."
-                is Result.Success -> {
-                    photos = result.data
-                    errorMessage = null
-                }
-            }
-
-            isLoading = false
-        }
-    }
 }
