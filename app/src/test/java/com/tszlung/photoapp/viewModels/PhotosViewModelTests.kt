@@ -4,13 +4,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.features.PhotosLoader
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
+import com.tszlung.photoapp.viewModels.helpers.MainCoroutineExtension
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(MainCoroutineExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class PhotosViewModelTests {
     @Test
     fun `init view model successfully`() {
@@ -22,10 +31,28 @@ class PhotosViewModelTests {
         assertNull(sut.errorMessage)
     }
 
+    @Test
+    fun `loads photos delivers empty photos when received empty photos`() = runTest {
+        val photosLoader = PhotosLoaderStub(Result.Success(listOf()))
+        val sut = PhotosViewModel(photosLoader)
+
+        sut.loadPhotos()
+        assertTrue(sut.isLoading)
+
+        advanceUntilIdle()
+
+        assertFalse(sut.isLoading)
+        assertTrue(sut.photos.isEmpty())
+    }
+
     // region Helpers
-    private class PhotosLoaderStub : PhotosLoader {
+    private class PhotosLoaderStub(
+        private val stub: Result<List<Photo>, Error> = Result.Success(
+            listOf()
+        )
+    ) : PhotosLoader {
         override suspend fun load(): Result<List<Photo>, Error> {
-            TODO("Not yet implemented")
+            return stub
         }
     }
     // endregion
@@ -38,4 +65,16 @@ class PhotosViewModel(private val loader: PhotosLoader) : ViewModel() {
         private set
     var errorMessage by mutableStateOf<String?>(null)
         private set
+
+    fun loadPhotos() {
+        isLoading = true
+        viewModelScope.launch {
+            when (val result = loader.load()) {
+                is Result.Failure -> TODO()
+                is Result.Success -> photos = result.data
+            }
+
+            isLoading = false
+        }
+    }
 }
