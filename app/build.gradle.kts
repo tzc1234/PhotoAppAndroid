@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     testImplementation(libs.ktor.client.mock)
 }
