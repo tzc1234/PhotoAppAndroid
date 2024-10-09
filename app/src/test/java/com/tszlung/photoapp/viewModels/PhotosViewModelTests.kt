@@ -85,6 +85,20 @@ class PhotosViewModelTests {
         assertEquals(photos, sut.photos)
     }
 
+    @Test
+    fun `load photos does not change previously loaded photos after an error from loader`() = runTest {
+        val photos = listOf(makePhoto(0))
+        val sut = makeSUT(mutableListOf(Result.Success(photos), Result.Failure(LoaderError.ANY)))
+
+        sut.loadPhotos()
+        advanceUntilIdle()
+        assertEquals(photos, sut.photos)
+
+        sut.loadPhotos()
+        advanceUntilIdle()
+        assertEquals(photos, sut.photos)
+    }
+
     // region Helpers
     private fun makeSUT(stubs: MutableList<Result<List<Photo>, Error>> = mutableListOf()): PhotosViewModel {
         val photosLoader = PhotosLoaderStub(stubs)
@@ -98,8 +112,7 @@ class PhotosViewModelTests {
     private class PhotosLoaderStub(private val stubs: MutableList<Result<List<Photo>, Error>>) :
         PhotosLoader {
         override suspend fun load(): Result<List<Photo>, Error> {
-            val result = stubs.removeFirst()
-            return result
+            return stubs.removeFirst()
         }
     }
     // endregion
