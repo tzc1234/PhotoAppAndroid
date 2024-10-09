@@ -2,7 +2,6 @@ package com.tszlung.photoapp.viewModels.helpers
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -13,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainCoroutineExtension(
-    private val dispatcher: TestDispatcher = StandardTestDispatcher(TestCoroutineScheduler())
+    private val dispatcher: TestDispatcher = StandardTestDispatcher()
 ) : BeforeEachCallback, AfterEachCallback {
     override fun beforeEach(context: ExtensionContext?) {
         Dispatchers.setMain(dispatcher)
