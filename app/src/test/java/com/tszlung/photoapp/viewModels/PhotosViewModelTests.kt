@@ -86,7 +86,7 @@ class PhotosViewModelTests {
     }
 
     // region Helpers
-    private fun makeSUT(stubs: MutableList<Result<List<Photo>, Error>> = mutableListOf<Result<List<Photo>, Error>>()): PhotosViewModel {
+    private fun makeSUT(stubs: MutableList<Result<List<Photo>, Error>> = mutableListOf()): PhotosViewModel {
         val photosLoader = PhotosLoaderStub(stubs)
         return PhotosViewModel(photosLoader)
     }
