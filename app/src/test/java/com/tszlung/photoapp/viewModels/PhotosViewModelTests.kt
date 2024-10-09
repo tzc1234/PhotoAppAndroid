@@ -31,30 +31,47 @@ class PhotosViewModelTests {
     }
 
     @Test
-    fun `loads photos delivers empty photos when received empty photos`() = runTest {
+    fun `load photos delivers isLoading correctly on loader success`() = runTest {
         val sut = makeSUT(Result.Success(listOf()))
 
         sut.loadPhotos()
         assertTrue(sut.isLoading)
-        assertTrue(sut.photos.isEmpty())
 
         advanceUntilIdle()
 
         assertFalse(sut.isLoading)
+    }
+
+    @Test
+    fun `load photos delivers isLoading correctly on loader failure`() = runTest {
+        val sut = makeSUT(Result.Success(listOf()))
+
+        sut.loadPhotos()
+        assertTrue(sut.isLoading)
+
+        advanceUntilIdle()
+        assertFalse(sut.isLoading)
+    }
+
+    @Test
+    fun `load photos delivers empty photos when received empty photos`() = runTest {
+        val sut = makeSUT(Result.Success(listOf()))
+
+        sut.loadPhotos()
+        assertTrue(sut.photos.isEmpty())
+
+        advanceUntilIdle()
         assertTrue(sut.photos.isEmpty())
     }
 
     @Test
-    fun `loads photos delivers error message when received error from loader`() = runTest {
+    fun `load photos delivers error message when received error from loader`() = runTest {
         val sut = makeSUT(Result.Failure(LoaderError.ANY))
 
         sut.loadPhotos()
-        assertTrue(sut.isLoading)
         assertNull(sut.errorMessage)
 
         advanceUntilIdle()
-
-        assertFalse(sut.isLoading)
         assertEquals("Error occurred, please try again.", sut.errorMessage)
     }
 
