@@ -3,10 +3,10 @@ package com.tszlung.photoapp.networking
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import com.tszlung.photoapp.features.Photo
-import com.tszlung.photoapp.features.PhotoLoader
+import com.tszlung.photoapp.features.PhotosLoader
 import java.net.URL
 
-class RemotePhotoLoader(private val client: HTTPClient, private val url: URL) : PhotoLoader {
+class RemotePhotosLoader(private val client: HTTPClient, private val url: URL) : PhotosLoader {
     enum class LoaderError : Error {
         CONNECTIVITY,
         INVALID_DATA

@@ -8,7 +8,7 @@ import com.tszlung.photoapp.features.*
 import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.networking.HTTPClientError
 import com.tszlung.photoapp.networking.PhotoResponse
-import com.tszlung.photoapp.networking.RemotePhotoLoader
+import com.tszlung.photoapp.networking.RemotePhotosLoader
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.runBlocking
@@ -40,7 +40,7 @@ class RemotePhotoLoaderTests {
 
         when (val result = sut.load()) {
             is Result.Failure -> assertEquals(
-                RemotePhotoLoader.LoaderError.CONNECTIVITY,
+                RemotePhotosLoader.LoaderError.CONNECTIVITY,
                 result.error
             )
 
@@ -55,7 +55,7 @@ class RemotePhotoLoaderTests {
 
         when (val result = sut.load()) {
             is Result.Failure -> assertEquals(
-                RemotePhotoLoader.LoaderError.INVALID_DATA,
+                RemotePhotosLoader.LoaderError.INVALID_DATA,
                 result.error
             )
 
@@ -89,20 +89,11 @@ class RemotePhotoLoaderTests {
     private fun makeSUT(
         url: URL = anyURL(),
         stub: Result<ByteArray, Error> = Result.Failure(HTTPClientError.UNKNOWN)
-    ): Pair<PhotoLoader, HTTPClientSpy> {
+    ): Pair<PhotosLoader, HTTPClientSpy> {
         val client = HTTPClientSpy(stub)
-        val sut = RemotePhotoLoader(client = client, url = url)
+        val sut = RemotePhotosLoader(client = client, url = url)
         return Pair(sut, client)
     }
-
-    private fun makePhoto(index: Int) = Photo(
-        id = index.toString(),
-        author = "author$index",
-        width = index,
-        height = index,
-        webURL = URL("https://web-url-$index.com"),
-        imageURL = URL("https://url-$index.com")
-    )
 
     private fun List<Photo>.toData(): ByteArray {
         val response = map {
