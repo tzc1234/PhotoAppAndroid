@@ -3,18 +3,17 @@ package com.tszlung.photoapp.viewModels
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.features.PhotosLoader
+import com.tszlung.photoapp.helpers.makePhoto
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import com.tszlung.photoapp.viewModels.helpers.MainCoroutineExtension
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -70,7 +69,7 @@ class PhotosViewModelTests {
     }
 
     @Test
-    fun `load photos delivers empty photos when received empty photos`() = runTest {
+    fun `load photos delivers empty photos when received empty photos from loader`() = runTest {
         val sut = makeSUT(mutableListOf(Result.Success(listOf())))
 
         sut.loadPhotos()
@@ -78,6 +77,18 @@ class PhotosViewModelTests {
 
         advanceUntilIdle()
         assertTrue(sut.photos.isEmpty())
+    }
+
+    @Test
+    fun `load photos delivers photos when received photos from loader`() = runTest {
+        val photos = listOf(makePhoto(0), makePhoto(1), makePhoto(2))
+        val sut = makeSUT(mutableListOf(Result.Success(photos)))
+
+        sut.loadPhotos()
+        assertTrue(sut.photos.isEmpty())
+
+        advanceUntilIdle()
+        assertEquals(photos, sut.photos)
     }
 
     // region Helpers
@@ -90,7 +101,7 @@ class PhotosViewModelTests {
         ANY
     }
 
-    private class PhotosLoaderStub(val stubs: MutableList<Result<List<Photo>, Error>>) :
+    private class PhotosLoaderStub(private val stubs: MutableList<Result<List<Photo>, Error>>) :
         PhotosLoader {
         override suspend fun load(): Result<List<Photo>, Error> {
             val result = stubs.removeFirst()
