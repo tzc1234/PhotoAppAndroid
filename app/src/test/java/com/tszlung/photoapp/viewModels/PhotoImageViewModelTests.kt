@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tszlung.photoapp.features.ImageDataLoader
+import com.tszlung.photoapp.helpers.anyData
 import com.tszlung.photoapp.util.*
 import com.tszlung.photoapp.viewModels.helpers.MainCoroutineExtension
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,10 +28,21 @@ class PhotoImageViewModelTests {
         assertNull(sut.imageData)
         assertFalse(sut.isLoading)
     }
-    
+
     @Test
     fun `loadImageData delivers isLoading properly on loader failure`() = runTest {
         val sut = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
+
+        sut.loadImageData()
+        assertTrue(sut.isLoading)
+
+        advanceUntilIdle()
+        assertFalse(sut.isLoading)
+    }
+
+    @Test
+    fun `loadImageData delivers isLoading properly on loader success`() = runTest {
+        val sut = makeSUT(mutableListOf(Result.Success(anyData())))
 
         sut.loadImageData()
         assertTrue(sut.isLoading)
