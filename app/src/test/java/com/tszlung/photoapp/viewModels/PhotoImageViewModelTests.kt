@@ -51,6 +51,17 @@ class PhotoImageViewModelTests {
         assertFalse(sut.isLoading)
     }
 
+    @Test
+    fun `loadImageData delivers null image data on loader failure`() = runTest {
+        val sut = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
+
+        sut.loadImageData()
+        assertNull(sut.imageData)
+
+        advanceUntilIdle()
+        assertNull(sut.imageData)
+    }
+
     // region Helpers
     private fun makeSUT(stubs: MutableList<Result<ByteArray, Error>> = mutableListOf()): PhotoImageViewModel {
         val imageDataLoader = ImageDataLoaderStub(stubs)
