@@ -24,7 +24,7 @@ import java.net.URL
 class PhotoImageViewModelTests {
     @Test
     fun `init view model successfully`() {
-        val sut = makeSUT()
+        val (sut, _) = makeSUT()
 
         assertNull(sut.imageData)
         assertFalse(sut.isLoading)
@@ -32,7 +32,7 @@ class PhotoImageViewModelTests {
 
     @Test
     fun `loadImageData delivers isLoading properly on loader failure`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
+        val (sut, _) = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
 
         sut.loadImageData()
         assertTrue(sut.isLoading)
@@ -43,7 +43,7 @@ class PhotoImageViewModelTests {
 
     @Test
     fun `loadImageData delivers isLoading properly on loader success`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Success(anyData())))
+        val (sut, _) = makeSUT(mutableListOf(Result.Success(anyData())))
 
         sut.loadImageData()
         assertTrue(sut.isLoading)
@@ -53,8 +53,20 @@ class PhotoImageViewModelTests {
     }
 
     @Test
+    fun `loadImageData requests with URL on loader`() = runTest {
+        val url = anyURL()
+        val (sut, loader) = makeSUT(mutableListOf(Result.Success(anyData())), url)
+
+        sut.loadImageData()
+        assertTrue(loader.requestURLs.isEmpty())
+
+        advanceUntilIdle()
+        assertEquals(listOf(url), loader.requestURLs)
+    }
+
+    @Test
     fun `loadImageData delivers null image data on loader failure`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
+        val (sut, _) = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
 
         sut.loadImageData()
         assertNull(sut.imageData)
@@ -66,7 +78,7 @@ class PhotoImageViewModelTests {
     @Test
     fun `loadImageData delivers image data on loader success`() = runTest {
         val data = anyData()
-        val sut = makeSUT(mutableListOf(Result.Success(data)))
+        val (sut, _) = makeSUT(mutableListOf(Result.Success(data)))
 
         sut.loadImageData()
         assertNull(sut.imageData)
@@ -79,18 +91,21 @@ class PhotoImageViewModelTests {
     private fun makeSUT(
         stubs: MutableList<Result<ByteArray, Error>> = mutableListOf(),
         imageURL: URL = anyURL()
-    ): PhotoImageViewModel {
-        val imageDataLoader = ImageDataLoaderStub(stubs)
-        return PhotoImageViewModel(imageDataLoader, imageURL)
+    ): Pair<PhotoImageViewModel, ImageDataLoaderSpy> {
+        val imageDataLoader = ImageDataLoaderSpy(stubs)
+        return Pair(PhotoImageViewModel(imageDataLoader, imageURL), imageDataLoader)
     }
 
     private enum class LoaderError : Error {
         ANY
     }
 
-    private class ImageDataLoaderStub(private val stubs: MutableList<Result<ByteArray, Error>>) :
+    private class ImageDataLoaderSpy(private val stubs: MutableList<Result<ByteArray, Error>>) :
         ImageDataLoader {
+        val requestURLs = mutableListOf<URL>()
+
         override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
+            requestURLs.add(url)
             return stubs.removeFirst()
         }
     }
@@ -107,9 +122,9 @@ class PhotoImageViewModel(private val loader: ImageDataLoader, private val image
     fun loadImageData() {
         isLoading = true
         viewModelScope.launch {
-            when (val result = loader.loadFrom(imageURL)) {
-                is Result.Failure -> imageData = null
-                is Result.Success -> imageData = result.data
+            imageData = when (val result = loader.loadFrom(imageURL)) {
+                is Result.Failure -> null
+                is Result.Success -> result.data
             }
 
             isLoading = false
