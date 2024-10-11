@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,22 +55,29 @@ class MainActivity : ComponentActivity() {
                         TopAppBar(title = { Text("Photos") })
                     }
                 ) { innerPadding ->
-                    PhotosGrid(modifier = Modifier.padding(innerPadding))
+                    PhotosGrid(
+                        isRefreshing = false,
+                        onRefresh = {},
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PhotosGrid(modifier: Modifier = Modifier) {
-    LazyVerticalGrid(
-        GridCells.Fixed(2),
-        modifier = modifier,
-        contentPadding = PaddingValues(8.dp)
-    ) {
-        items(20) { item ->
-            PhotoCard(makeImageBitmap(android.graphics.Color.RED), "Author")
+fun PhotosGrid(isRefreshing: Boolean, onRefresh: () -> Unit, modifier: Modifier = Modifier) {
+    PullToRefreshBox(isRefreshing = isRefreshing, onRefresh = onRefresh, modifier = modifier) {
+        LazyVerticalGrid(
+            GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(20) { item ->
+                PhotoCard(makeImageBitmap(android.graphics.Color.RED), "Author")
+            }
         }
     }
 }
@@ -143,7 +151,11 @@ fun DefaultPreview() {
                 TopAppBar(title = { Text("Photos") })
             }
         ) { innerPadding ->
-            PhotosGrid(modifier = Modifier.padding(innerPadding))
+            PhotosGrid(
+                isRefreshing = false,
+                onRefresh = {},
+                modifier = Modifier.padding(innerPadding)
+            )
         }
     }
 }
