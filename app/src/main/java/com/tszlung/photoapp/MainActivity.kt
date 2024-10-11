@@ -3,6 +3,7 @@ package com.tszlung.photoapp
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tszlung.photoapp.ui.theme.PhotoAppTheme
@@ -121,6 +123,13 @@ fun makeImageBitmap(color: Int): ImageBitmap {
     val bitmap = Bitmap.createBitmap(1, 1, Config.ARGB_8888)
     bitmap.eraseColor(color)
     return bitmap.asImageBitmap()
+}
+
+@Composable
+fun ErrorToast(message: String?) {
+    if (message != null) {
+        Toast.makeText(LocalContext.current, message, Toast.LENGTH_LONG).show()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
