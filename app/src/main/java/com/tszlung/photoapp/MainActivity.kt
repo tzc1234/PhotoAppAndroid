@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
             )
 
             PhotoAppTheme {
-                ErrorToast(photosViewModel.errorMessage)
+                ErrorToast(photosViewModel.errorMessage, photosViewModel::resetErrorMessage)
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),

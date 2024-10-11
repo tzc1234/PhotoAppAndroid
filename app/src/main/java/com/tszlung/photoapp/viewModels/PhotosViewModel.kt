@@ -38,4 +38,8 @@ class PhotosViewModel(private val loader: PhotosLoader) : ViewModel() {
             isLoading = false
         }
     }
+
+    fun resetErrorMessage() {
+        errorMessage = null
+    }
 }

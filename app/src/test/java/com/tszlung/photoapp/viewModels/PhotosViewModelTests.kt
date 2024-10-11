@@ -63,6 +63,18 @@ class PhotosViewModelTests {
     }
 
     @Test
+    fun `set error message to null after resetErrorMessage`() = runTest {
+        val sut = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
+
+        sut.loadPhotos()
+        advanceUntilIdle()
+        assertEquals("Error occurred, please try again.", sut.errorMessage)
+
+        sut.resetErrorMessage()
+        assertNull(sut.errorMessage)
+    }
+
+    @Test
     fun `load photos delivers empty photos when received empty photos from loader`() = runTest {
         val sut = makeSUT(mutableListOf(Result.Success(listOf())))
 
