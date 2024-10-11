@@ -81,6 +81,22 @@ class PhotoImageViewModelTests {
         assertEquals(data, sut.imageData)
     }
 
+    @Test
+    fun `loadImageData delivers previous image data on loader failure`() = runTest {
+        val data = anyData()
+        val (sut, _) = makeSUT(mutableListOf(Result.Success(data), Result.Failure(LoaderError.ANY)))
+
+        sut.loadImageData()
+        assertNull(sut.imageData)
+
+        advanceUntilIdle()
+        assertEquals(data, sut.imageData)
+
+        sut.loadImageData()
+        advanceUntilIdle()
+        assertEquals(data, sut.imageData)
+    }
+
     // region Helpers
     private fun makeSUT(
         stubs: MutableList<Result<ByteArray, Error>> = mutableListOf(),

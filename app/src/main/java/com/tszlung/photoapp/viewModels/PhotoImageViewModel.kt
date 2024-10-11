@@ -20,9 +20,9 @@ class PhotoImageViewModel(private val loader: ImageDataLoader, private val image
     fun loadImageData() {
         isLoading = true
         viewModelScope.launch {
-            imageData = when (val result = loader.loadFrom(imageURL)) {
-                is Result.Failure -> null
-                is Result.Success -> result.data
+             when (val result = loader.loadFrom(imageURL)) {
+                is Result.Failure -> Unit
+                is Result.Success -> imageData = result.data
             }
 
             isLoading = false
