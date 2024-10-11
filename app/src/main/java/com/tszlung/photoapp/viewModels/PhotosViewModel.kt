@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.features.PhotosLoader
 import com.tszlung.photoapp.util.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class PhotosViewModel(private val loader: PhotosLoader) : ViewModel() {
@@ -33,6 +34,7 @@ class PhotosViewModel(private val loader: PhotosLoader) : ViewModel() {
                 }
             }
 
+            delay(100L)
             isLoading = false
         }
     }
