@@ -24,7 +24,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tszlung.photoapp.composables.ErrorToast
 import com.tszlung.photoapp.composables.PhotoCard
 import com.tszlung.photoapp.composables.PhotosGrid
-import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.networking.RemoteImageDataLoader
 import com.tszlung.photoapp.networking.RemotePhotosLoader
 import com.tszlung.photoapp.networking.infra.KtorHTTPClient
@@ -66,12 +65,14 @@ class MainActivity : ComponentActivity() {
                         photosViewModel.loadPhotos()
                     }
 
-                    PhotoGridContainer(
+                    PhotosGrid(
+                        isRefreshing = photosViewModel.isLoading,
+                        onRefresh = photosViewModel::loadPhotos,
                         modifier = Modifier.padding(innerPadding),
-                        viewModel = photosViewModel
+                        photos = photosViewModel.photos,
                     ) { photo ->
                         val photoURL = makePhotoURL(photo.id)
-                        val viewModel = viewModel<PhotoImageViewModel>(
+                        val photoImageViewModel = viewModel<PhotoImageViewModel>(
                             key = photo.id,
                             factory = object : ViewModelProvider.Factory {
                                 @Suppress("UNCHECKED_CAST")
@@ -82,10 +83,10 @@ class MainActivity : ComponentActivity() {
                         )
 
                         LaunchedEffect(key1 = Unit) {
-                            viewModel.loadImageData()
+                            photoImageViewModel.loadImageData()
                         }
 
-                        PhotoCard(viewModel.imageData, photo.author)
+                        PhotoCard(photoImageViewModel.imageData, photo.author)
                     }
                 }
             }
@@ -96,21 +97,6 @@ class MainActivity : ComponentActivity() {
         val photoDimension = 600
         return URL("https://picsum.photos/id/$photoId/$photoDimension/$photoDimension")
     }
-}
-
-@Composable
-fun PhotoGridContainer(
-    modifier: Modifier = Modifier,
-    viewModel: PhotosViewModel,
-    item: @Composable (Photo) -> Unit
-) {
-    PhotosGrid(
-        isRefreshing = viewModel.isLoading,
-        onRefresh = viewModel::loadPhotos,
-        modifier = modifier,
-        photos = viewModel.photos,
-        item = item
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
