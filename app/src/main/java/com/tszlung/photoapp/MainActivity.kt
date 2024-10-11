@@ -3,7 +3,6 @@ package com.tszlung.photoapp
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,11 +17,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tszlung.photoapp.composables.ErrorToast
 import com.tszlung.photoapp.composables.PhotoCard
 import com.tszlung.photoapp.composables.PhotosGrid
 import com.tszlung.photoapp.features.Photo
@@ -55,6 +54,8 @@ class MainActivity : ComponentActivity() {
             )
 
             PhotoAppTheme {
+                ErrorToast(photosViewModel.errorMessage)
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -110,13 +111,6 @@ fun PhotoGridContainer(
         photos = viewModel.photos,
         item = item
     )
-}
-
-@Composable
-fun ErrorToast(message: String?) {
-    if (message != null) {
-        Toast.makeText(LocalContext.current, message, Toast.LENGTH_LONG).show()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
