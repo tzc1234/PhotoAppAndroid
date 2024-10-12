@@ -26,7 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PhotoCard(imageBitmap: ImageBitmap?, author: String) {
+fun PhotoCard(imageBitmap: ImageBitmap?, author: String, isShimming: Boolean) {
     Card(
         modifier = Modifier
             .padding(6.dp),
@@ -37,7 +37,9 @@ fun PhotoCard(imageBitmap: ImageBitmap?, author: String) {
             defaultElevation = 5.dp
         ), border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.tertiary)
     ) {
-        Box(modifier = Modifier.aspectRatio(1f)) {
+        Box(modifier = Modifier
+            .aspectRatio(1f)
+            .shimmer(isShimming)) {
             if (imageBitmap != null) {
                 Image(
                     bitmap = imageBitmap,

@@ -88,7 +88,11 @@ class MainActivity : ComponentActivity() {
                             photoImageViewModel.loadImageData()
                         }
 
-                        PhotoCard(photoImageViewModel.imageData.toImageBitmap(), photo.author)
+                        PhotoCard(
+                            photoImageViewModel.imageData.toImageBitmap(),
+                            photo.author,
+                            photoImageViewModel.isLoading
+                        )
                     }
                 }
             }
@@ -122,7 +126,7 @@ fun DefaultPreview() {
                 modifier = Modifier.padding(innerPadding),
                 photos = listOf(makePhoto(0), makePhoto(1), makePhoto(2)),
             ) { photo ->
-                PhotoCard(makeImageBitmap(), photo.author)
+                PhotoCard(makeImageBitmap(), photo.author, false)
             }
         }
     }
