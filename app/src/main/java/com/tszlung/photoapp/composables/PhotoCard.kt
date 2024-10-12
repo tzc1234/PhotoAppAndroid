@@ -1,6 +1,5 @@
 package com.tszlung.photoapp.composables
 
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,12 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PhotoCard(imageData: ByteArray?, author: String) {
+fun PhotoCard(imageBitmap: ImageBitmap?, author: String) {
     Card(
         modifier = Modifier
             .padding(6.dp),
@@ -39,12 +38,10 @@ fun PhotoCard(imageData: ByteArray?, author: String) {
         ), border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.tertiary)
     ) {
         Box(modifier = Modifier.aspectRatio(1f)) {
-            if (imageData != null) {
-                val imageBitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.size)
-                    .asImageBitmap()
+            if (imageBitmap != null) {
                 Image(
                     bitmap = imageBitmap,
-                    contentDescription = "photo",
+                    contentDescription = null,
                     modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.FillWidth
                 )

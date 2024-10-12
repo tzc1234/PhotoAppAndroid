@@ -2,6 +2,7 @@ package com.tszlung.photoapp
 
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +16,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -29,7 +32,6 @@ import com.tszlung.photoapp.networking.infra.KtorHTTPClient
 import com.tszlung.photoapp.ui.theme.PhotoAppTheme
 import com.tszlung.photoapp.viewModels.PhotoImageViewModel
 import com.tszlung.photoapp.viewModels.PhotosViewModel
-import java.io.ByteArrayOutputStream
 import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,7 +88,7 @@ class MainActivity : ComponentActivity() {
                             photoImageViewModel.loadImageData()
                         }
 
-                        PhotoCard(photoImageViewModel.imageData, photo.author)
+                        PhotoCard(photoImageViewModel.imageData.toImageBitmap(), photo.author)
                     }
                 }
             }
@@ -96,6 +98,10 @@ class MainActivity : ComponentActivity() {
     private fun makePhotoURL(photoId: String): URL {
         val photoDimension = 600
         return URL("https://picsum.photos/id/$photoId/$photoDimension/$photoDimension")
+    }
+
+    private fun ByteArray?.toImageBitmap() = this?.let {
+        BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
     }
 }
 
@@ -131,10 +137,8 @@ private fun makePhoto(index: Int) = Photo(
     imageURL = URL("https://url-$index.com")
 )
 
-private fun makeImageBitmap(color: Int = android.graphics.Color.RED): ByteArray {
+private fun makeImageBitmap(color: Int = android.graphics.Color.RED): ImageBitmap {
     val bitmap = Bitmap.createBitmap(1, 1, Config.ARGB_8888)
     bitmap.eraseColor(color)
-    val stream = ByteArrayOutputStream()
-    bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
-    return stream.toByteArray()
+    return bitmap.asImageBitmap()
 }
