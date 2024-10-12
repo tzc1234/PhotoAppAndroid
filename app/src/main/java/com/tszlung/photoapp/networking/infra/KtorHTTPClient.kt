@@ -12,9 +12,7 @@ import io.ktor.client.statement.readBytes
 import java.net.URL
 
 class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
-    private val client = HttpClient(engine) {
-        followRedirects = false
-    }
+    private val client = HttpClient(engine)
 
     override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
         val response = try {
