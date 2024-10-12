@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.tszlung.photoapp.composables.modifiers.shimmer
 
 @Composable
 fun PhotoCard(imageBitmap: ImageBitmap?, author: String, isShimming: Boolean) {

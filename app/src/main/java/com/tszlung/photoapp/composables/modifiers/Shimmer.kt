@@ -1,4 +1,4 @@
-package com.tszlung.photoapp.composables
+package com.tszlung.photoapp.composables.modifiers
 
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
