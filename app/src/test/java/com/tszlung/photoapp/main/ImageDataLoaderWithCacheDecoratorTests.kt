@@ -11,18 +11,15 @@ import java.net.URL
 
 class ImageDataLoaderWithCacheDecoratorTests {
     @Test
-    @Suppress("UnusedVariable")
     fun `dose not notify loader upon init`() = runTest {
-        val loader = ImageDataLoaderSpy()
-        @Suppress("Unused") val sut = ImageDataLoaderWithCacheDecorator(loader)
+        val (_, loader) = makeSUT()
 
         assertTrue(loader.requestURLs.isEmpty())
     }
 
     @Test
     fun `requests data with URL from loader`() = runTest {
-        val loader = ImageDataLoaderSpy()
-        val sut = ImageDataLoaderWithCacheDecorator(loader)
+        val (sut, loader) = makeSUT()
         val url = anyURL()
 
         sut.loadFrom(url)
@@ -31,6 +28,12 @@ class ImageDataLoaderWithCacheDecoratorTests {
     }
 
     // region Helpers
+    private fun makeSUT(): Pair<ImageDataLoaderWithCacheDecorator, ImageDataLoaderSpy> {
+        val loader = ImageDataLoaderSpy()
+        val sut = ImageDataLoaderWithCacheDecorator(loader)
+        return Pair(sut, loader)
+    }
+
     private enum class LoaderError : Error {
         ANY
     }
