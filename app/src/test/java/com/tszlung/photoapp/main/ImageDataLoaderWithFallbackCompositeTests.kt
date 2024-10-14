@@ -9,14 +9,13 @@ import com.tszlung.photoapp.util.Result
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.net.URL
+import kotlin.ByteArray
 
 class ImageDataLoaderWithFallbackCompositeTests {
     @Test
     fun `delivers data on primary loader success`() = runTest {
         val data = "data from primary".toByteArray(Charsets.UTF_8)
-        val primary = ImageDataLoaderStub(Result.Success(data))
-        val fallback = ImageDataLoaderStub()
-        val sut = ImageDataLoaderWithFallbackComposite(primary, fallback)
+        val sut = makeSUT(Result.Success(data))
 
         val result = sut.loadFrom(anyURL())
 
@@ -24,11 +23,17 @@ class ImageDataLoaderWithFallbackCompositeTests {
     }
 
     // region Helpers
-    private class ImageDataLoaderStub(
-        private val stub: Result<ByteArray, Error> = Result.Failure(
-            AnyError.ANY
-        )
-    ) : ImageDataLoader {
+    private fun makeSUT(
+        primaryStub: Result<ByteArray, Error> = Result.Failure(AnyError.ANY),
+        fallbackStub: Result<ByteArray, Error> = Result.Failure(AnyError.ANY)
+    ): ImageDataLoaderWithFallbackComposite {
+        val primary = ImageDataLoaderStub(primaryStub)
+        val fallback = ImageDataLoaderStub(fallbackStub)
+        return ImageDataLoaderWithFallbackComposite(primary, fallback)
+    }
+
+    private class ImageDataLoaderStub(private val stub: Result<ByteArray, Error>) :
+        ImageDataLoader {
         override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
             return stub
         }
