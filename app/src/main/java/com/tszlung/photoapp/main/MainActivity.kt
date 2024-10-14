@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                         photos = photosViewModel.photos,
                     ) { photo ->
                         val photoURL = makePhotoURL(photo.id)
-                        val photoImageViewModel = viewModel<PhotoImageViewModel>(
+                        val photoImageViewModel = viewModel<PhotoImageViewModel<ImageBitmap>>(
                             key = photo.id,
                             factory = object : ViewModelProvider.Factory {
                                 @Suppress("UNCHECKED_CAST")
@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
                                     return PhotoImageViewModel(
                                         imageDataLoaderWithFallback,
                                         photoURL
-                                    ) as T
+                                    ) { imageConverter(it) } as T
                                 }
                             }
                         )
@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         PhotoCard(
-                            photoImageViewModel.imageData.toImageBitmap(),
+                            photoImageViewModel.image,
                             photo.author,
                             photoImageViewModel.isLoading
                         )
@@ -121,8 +121,8 @@ class MainActivity : ComponentActivity() {
         return URL("https://picsum.photos/id/$photoId/$photoDimension/$photoDimension")
     }
 
-    private fun ByteArray?.toImageBitmap() = this?.let {
-        BitmapFactory.decodeByteArray(it, 0, it.size).asImageBitmap()
+    private fun imageConverter(data: ByteArray): ImageBitmap? {
+        return BitmapFactory.decodeByteArray(data, 0, data.size)?.asImageBitmap()
     }
 }
 

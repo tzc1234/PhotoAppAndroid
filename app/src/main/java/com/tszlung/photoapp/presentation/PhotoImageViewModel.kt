@@ -10,9 +10,12 @@ import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.launch
 import java.net.URL
 
-class PhotoImageViewModel(private val loader: ImageDataLoader, private val imageURL: URL) :
-    ViewModel() {
-    var imageData by mutableStateOf<ByteArray?>(null)
+class PhotoImageViewModel<I>(
+    private val loader: ImageDataLoader,
+    private val imageURL: URL,
+    private val imageConverter: (ByteArray) -> I?
+) : ViewModel() {
+    var image by mutableStateOf<I?>(null)
         private set
     var isLoading by mutableStateOf(false)
         private set
@@ -20,9 +23,9 @@ class PhotoImageViewModel(private val loader: ImageDataLoader, private val image
     fun loadImageData() {
         isLoading = true
         viewModelScope.launch {
-             when (val result = loader.loadFrom(imageURL)) {
+            when (val result = loader.loadFrom(imageURL)) {
                 is Result.Failure -> Unit
-                is Result.Success -> imageData = result.data
+                is Result.Success -> image = imageConverter(result.data)
             }
 
             isLoading = false
