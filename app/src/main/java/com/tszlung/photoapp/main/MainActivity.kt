@@ -133,9 +133,7 @@ fun DefaultPreview() {
     PhotoAppTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            topBar = {
-                TopAppBar(title = { Text("Photos") })
-            }
+            topBar = { TopAppBar(title = { Text("Photos") }) }
         ) { innerPadding ->
             PhotosGrid(
                 isRefreshing = false,
