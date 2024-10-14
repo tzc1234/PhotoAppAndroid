@@ -12,10 +12,10 @@ class ImageDataLoaderWithCacheDecorator(
 ) : ImageDataLoader {
     override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
         return when (val result = loader.loadFrom(url)) {
-            is Result.Failure -> Result.Failure(result.error)
+            is Result.Failure -> result
             is Result.Success -> {
                 cache.save(result.data, url)
-                Result.Success(result.data)
+                result
             }
         }
     }
