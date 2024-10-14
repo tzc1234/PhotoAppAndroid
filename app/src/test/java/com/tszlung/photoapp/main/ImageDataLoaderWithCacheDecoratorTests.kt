@@ -49,15 +49,32 @@ class ImageDataLoaderWithCacheDecoratorTests {
         }
     }
 
+    @Test
+    fun `does not cache data with url on loader failure`() = runTest {
+        val cache = ImageDataCacheSpy()
+        val (sut, _) = makeSUT(Result.Failure(LoaderError.ANY), cache)
+
+        sut.loadFrom(anyURL())
+
+        assertTrue(cache.cachedData.isEmpty())
+    }
+
     // region Helpers
-    private fun makeSUT(stub: Result<ByteArray, Error> = Result.Success(anyData())): Pair<ImageDataLoaderWithCacheDecorator, ImageDataLoaderSpy> {
+    private fun makeSUT(
+        stub: Result<ByteArray, Error> = Result.Success(anyData()),
+        cache: ImageDataCache = ImageDataCacheSpy()
+    ): Pair<ImageDataLoaderWithCacheDecorator, ImageDataLoaderSpy> {
         val loader = ImageDataLoaderSpy(stub)
-        val sut = ImageDataLoaderWithCacheDecorator(loader)
+        val sut = ImageDataLoaderWithCacheDecorator(loader, cache)
         return Pair(sut, loader)
     }
 
     private enum class LoaderError : Error {
         ANY
+    }
+
+    private class ImageDataCacheSpy : ImageDataCache {
+        val cachedData = mutableListOf<Any>()
     }
 
     private class ImageDataLoaderSpy(private val stub: Result<ByteArray, Error>) : ImageDataLoader {
@@ -71,7 +88,14 @@ class ImageDataLoaderWithCacheDecoratorTests {
     // endregion
 }
 
-class ImageDataLoaderWithCacheDecorator(private val loader: ImageDataLoader) : ImageDataLoader {
+interface ImageDataCache {
+
+}
+
+class ImageDataLoaderWithCacheDecorator(
+    private val loader: ImageDataLoader,
+    private val cache: ImageDataCache
+) : ImageDataLoader {
     override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
         return loader.loadFrom(url)
     }
