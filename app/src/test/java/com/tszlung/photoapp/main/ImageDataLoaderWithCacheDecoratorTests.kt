@@ -1,7 +1,7 @@
 package com.tszlung.photoapp.main
 
 import com.tszlung.photoapp.features.ImageDataLoader
-import com.tszlung.photoapp.helpers.anyURL
+import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.test.runTest
@@ -30,7 +30,7 @@ class ImageDataLoaderWithCacheDecoratorTests {
 
     @Test
     fun `delivers error on loader failure`() = runTest {
-        val (sut, _) = makeSUT()
+        val (sut, _) = makeSUT(Result.Failure(LoaderError.ANY))
 
         when (val result = sut.loadFrom(anyURL())) {
             is Result.Failure -> assertEquals(LoaderError.ANY, result.error)
@@ -38,9 +38,20 @@ class ImageDataLoaderWithCacheDecoratorTests {
         }
     }
 
+    @Test
+    fun `delivers data on loader success`() = runTest {
+        val data = anyData()
+        val (sut, _) = makeSUT(Result.Success(data))
+
+        when (val result = sut.loadFrom(anyURL())) {
+            is Result.Failure -> fail("should not be failure")
+            is Result.Success -> assertEquals(data, result.data)
+        }
+    }
+
     // region Helpers
-    private fun makeSUT(): Pair<ImageDataLoaderWithCacheDecorator, ImageDataLoaderSpy> {
-        val loader = ImageDataLoaderSpy()
+    private fun makeSUT(stub: Result<ByteArray, Error> = Result.Success(anyData())): Pair<ImageDataLoaderWithCacheDecorator, ImageDataLoaderSpy> {
+        val loader = ImageDataLoaderSpy(stub)
         val sut = ImageDataLoaderWithCacheDecorator(loader)
         return Pair(sut, loader)
     }
@@ -49,12 +60,12 @@ class ImageDataLoaderWithCacheDecoratorTests {
         ANY
     }
 
-    private class ImageDataLoaderSpy : ImageDataLoader {
+    private class ImageDataLoaderSpy(private val stub: Result<ByteArray, Error>) : ImageDataLoader {
         val requestURLs = mutableListOf<URL>()
 
         override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
             requestURLs.add(url)
-            return Result.Failure(LoaderError.ANY)
+            return stub
         }
     }
     // endregion
