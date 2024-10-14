@@ -3,6 +3,8 @@ package com.tszlung.photoapp.main
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.helpers.AnyError
 import com.tszlung.photoapp.helpers.anyURL
+import com.tszlung.photoapp.main.helpers.failuresResult
+import com.tszlung.photoapp.main.helpers.successResult
 import kotlinx.coroutines.test.runTest
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
@@ -51,9 +53,6 @@ class ImageDataLoaderWithFallbackCompositeTests {
         val fallback = ImageDataLoaderStub(fallbackStub)
         return ImageDataLoaderWithFallbackComposite(primary, fallback)
     }
-
-    private fun successResult(data: ByteArray) = Result.Success<ByteArray, Error>(data)
-    private fun failuresResult() = Result.Failure<ByteArray, Error>(AnyError.ANY)
 
     private class ImageDataLoaderStub(private val stub: Result<ByteArray, Error>) :
         ImageDataLoader {
