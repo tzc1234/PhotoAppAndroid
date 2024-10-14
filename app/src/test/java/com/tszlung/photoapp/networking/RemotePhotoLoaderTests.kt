@@ -1,4 +1,4 @@
-package com.tszlung.photoapp
+package com.tszlung.photoapp.networking
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -6,9 +6,6 @@ import org.junit.jupiter.api.fail
 import java.net.URL
 import com.tszlung.photoapp.features.*
 import com.tszlung.photoapp.helpers.*
-import com.tszlung.photoapp.networking.HTTPClientError
-import com.tszlung.photoapp.networking.PhotoResponse
-import com.tszlung.photoapp.networking.RemotePhotosLoader
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.runBlocking

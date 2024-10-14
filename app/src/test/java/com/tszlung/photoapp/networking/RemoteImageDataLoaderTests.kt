@@ -1,9 +1,7 @@
-package com.tszlung.photoapp
+package com.tszlung.photoapp.networking
 
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.helpers.*
-import com.tszlung.photoapp.networking.HTTPClientError
-import com.tszlung.photoapp.networking.RemoteImageDataLoader
 import com.tszlung.photoapp.util.*
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*

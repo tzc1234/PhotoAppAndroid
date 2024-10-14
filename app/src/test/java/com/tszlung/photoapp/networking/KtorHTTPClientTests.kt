@@ -1,10 +1,10 @@
-package com.tszlung.photoapp
+package com.tszlung.photoapp.networking
 
 import com.tszlung.photoapp.helpers.*
-import com.tszlung.photoapp.networking.HTTPClientError
 import com.tszlung.photoapp.networking.infra.KtorHTTPClient
 import com.tszlung.photoapp.util.Result
 import io.ktor.client.engine.mock.*
+import io.ktor.client.engine.mock.MockEngine.Companion.invoke
 import io.ktor.client.request.HttpRequestData
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
