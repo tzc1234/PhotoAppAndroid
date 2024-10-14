@@ -1,10 +1,11 @@
 package com.tszlung.photoapp.caching
 
+import com.tszlung.photoapp.features.ImageDataCache
 import com.tszlung.photoapp.util.*
 import com.tszlung.photoapp.features.ImageDataLoader
 import java.net.URL
 
-class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader {
+class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader, ImageDataCache {
     enum class LoaderError : Error {
         DATA_NOT_FOUND,
         FAILED
@@ -27,7 +28,7 @@ class LocalImageDataLoader(private val store: ImageDataStore) : ImageDataLoader 
         FAILED
     }
 
-    suspend fun save(data: ByteArray, url: URL): Result<Unit, Error> {
+    override suspend fun save(data: ByteArray, url: URL): Result<Unit, Error> {
         return when (store.insert(data, url)) {
             is Result.Failure -> Result.Failure(SaveError.FAILED)
             is Result.Success -> Result.Success(Unit)

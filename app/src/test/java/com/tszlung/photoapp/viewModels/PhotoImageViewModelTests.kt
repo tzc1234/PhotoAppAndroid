@@ -1,6 +1,7 @@
 package com.tszlung.photoapp.viewModels
 
 import com.tszlung.photoapp.features.ImageDataLoader
+import com.tszlung.photoapp.helpers.AnyError
 import com.tszlung.photoapp.helpers.anyData
 import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.util.*
@@ -26,7 +27,7 @@ class PhotoImageViewModelTests {
 
     @Test
     fun `loadImageData delivers isLoading properly on loader failure`() = runTest {
-        val (sut, _) = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
+        val (sut, _) = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
 
         sut.loadImageData()
         assertTrue(sut.isLoading)
@@ -60,7 +61,7 @@ class PhotoImageViewModelTests {
 
     @Test
     fun `loadImageData delivers null image data on loader failure`() = runTest {
-        val (sut, _) = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
+        val (sut, _) = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
 
         sut.loadImageData()
         assertNull(sut.imageData)
@@ -84,7 +85,7 @@ class PhotoImageViewModelTests {
     @Test
     fun `loadImageData delivers previous image data on loader failure`() = runTest {
         val data = anyData()
-        val (sut, _) = makeSUT(mutableListOf(Result.Success(data), Result.Failure(LoaderError.ANY)))
+        val (sut, _) = makeSUT(mutableListOf(Result.Success(data), Result.Failure(AnyError.ANY)))
 
         sut.loadImageData()
         assertNull(sut.imageData)
@@ -104,10 +105,6 @@ class PhotoImageViewModelTests {
     ): Pair<PhotoImageViewModel, ImageDataLoaderSpy> {
         val imageDataLoader = ImageDataLoaderSpy(stubs)
         return Pair(PhotoImageViewModel(imageDataLoader, imageURL), imageDataLoader)
-    }
-
-    private enum class LoaderError : Error {
-        ANY
     }
 
     private class ImageDataLoaderSpy(private val stubs: MutableList<Result<ByteArray, Error>>) :
