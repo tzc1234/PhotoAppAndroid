@@ -87,7 +87,6 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         photos = photosViewModel.photos,
                     ) { photo ->
-                        val photoURL = makePhotoURL(photo.id)
                         val photoImageViewModel = viewModel<PhotoImageViewModel<ImageBitmap>>(
                             key = photo.id,
                             factory = object : ViewModelProvider.Factory {
@@ -95,7 +94,7 @@ class MainActivity : ComponentActivity() {
                                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                                     return PhotoImageViewModel(
                                         imageDataLoaderWithFallback,
-                                        photoURL
+                                        makePhotoURL(photo.id)
                                     ) { imageConverter(it) } as T
                                 }
                             }
