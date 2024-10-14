@@ -32,6 +32,16 @@ class ImageDataLoaderWithFallbackCompositeTests {
         assertEquals(expectedResult, result)
     }
 
+    @Test
+    fun `delivers error on both primary and fallback loader error`() = runTest {
+        val expectedResult = failuresResult()
+        val sut = makeSUT(failuresResult(), expectedResult)
+
+        val result = sut.loadFrom(anyURL())
+
+        assertEquals(expectedResult, result)
+    }
+
     // region Helpers
     private fun makeSUT(
         primaryStub: Result<ByteArray, Error> = Result.Failure(AnyError.ANY),
