@@ -1,6 +1,7 @@
 package com.tszlung.photoapp.main
 
 import com.tszlung.photoapp.features.ImageDataLoader
+import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.test.runTest
@@ -18,12 +19,28 @@ class ImageDataLoaderWithCacheDecoratorTests {
         assertTrue(loader.requestURLs.isEmpty())
     }
 
+    @Test
+    fun `requests data with URL from loader`() = runTest {
+        val loader = ImageDataLoaderSpy()
+        val sut = ImageDataLoaderWithCacheDecorator(loader)
+        val url = anyURL()
+
+        sut.loadFrom(url)
+
+        assertEquals(listOf(url), loader.requestURLs)
+    }
+
     // region Helpers
+    private enum class LoaderError : Error {
+        ANY
+    }
+
     private class ImageDataLoaderSpy : ImageDataLoader {
         val requestURLs = mutableListOf<URL>()
 
         override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
-            TODO("Not yet implemented")
+            requestURLs.add(url)
+            return Result.Failure(LoaderError.ANY)
         }
     }
     // endregion
@@ -31,6 +48,6 @@ class ImageDataLoaderWithCacheDecoratorTests {
 
 class ImageDataLoaderWithCacheDecorator(private val loader: ImageDataLoader) : ImageDataLoader {
     override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
-        TODO("Not yet implemented")
+        return loader.loadFrom(url)
     }
 }
