@@ -1,5 +1,6 @@
 package com.tszlung.photoapp.main
 
+import com.tszlung.photoapp.features.ImageDataCache
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.util.Error
@@ -116,23 +117,4 @@ class ImageDataLoaderWithCacheDecoratorTests {
         }
     }
     // endregion
-}
-
-interface ImageDataCache {
-    suspend fun save(data: ByteArray, url: URL): Result<Unit, Error>
-}
-
-class ImageDataLoaderWithCacheDecorator(
-    private val loader: ImageDataLoader,
-    private val cache: ImageDataCache
-) : ImageDataLoader {
-    override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
-        return when (val result = loader.loadFrom(url)) {
-            is Result.Failure -> Result.Failure(result.error)
-            is Result.Success -> {
-                cache.save(result.data, url)
-                Result.Success(result.data)
-            }
-        }
-    }
 }
