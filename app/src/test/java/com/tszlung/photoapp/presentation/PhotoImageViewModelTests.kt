@@ -21,7 +21,7 @@ class PhotoImageViewModelTests {
     fun `init view model successfully`() {
         val (sut, _) = makeSUT()
 
-        assertNull(sut.imageData)
+        assertNull(sut.image)
         assertFalse(sut.isLoading)
     }
 
@@ -60,51 +60,52 @@ class PhotoImageViewModelTests {
     }
 
     @Test
-    fun `loadImageData delivers null image data on loader failure`() = runTest {
+    fun `loadImageData delivers null image on loader failure`() = runTest {
         val (sut, _) = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
 
         sut.loadImageData()
-        assertNull(sut.imageData)
+        assertNull(sut.image)
 
         advanceUntilIdle()
-        assertNull(sut.imageData)
+        assertNull(sut.image)
     }
 
     @Test
-    fun `loadImageData delivers image data on loader success`() = runTest {
+    fun `loadImageData delivers image on loader success`() = runTest {
         val data = anyData()
         val (sut, _) = makeSUT(mutableListOf(Result.Success(data)))
 
         sut.loadImageData()
-        assertNull(sut.imageData)
+        assertNull(sut.image)
 
         advanceUntilIdle()
-        assertEquals(data, sut.imageData)
+        assertEquals(data, sut.image)
     }
 
     @Test
-    fun `loadImageData delivers previous image data on loader failure`() = runTest {
+    fun `loadImageData delivers previous image on loader failure`() = runTest {
         val data = anyData()
         val (sut, _) = makeSUT(mutableListOf(Result.Success(data), Result.Failure(AnyError.ANY)))
 
         sut.loadImageData()
-        assertNull(sut.imageData)
+        assertNull(sut.image)
 
         advanceUntilIdle()
-        assertEquals(data, sut.imageData)
+        assertEquals(data, sut.image)
 
         sut.loadImageData()
         advanceUntilIdle()
-        assertEquals(data, sut.imageData)
+        assertEquals(data, sut.image)
     }
 
     // region Helpers
     private fun makeSUT(
         stubs: MutableList<Result<ByteArray, Error>> = mutableListOf(),
         imageURL: URL = anyURL()
-    ): Pair<PhotoImageViewModel, ImageDataLoaderSpy> {
+    ): Pair<PhotoImageViewModel<ByteArray>, ImageDataLoaderSpy> {
         val imageDataLoader = ImageDataLoaderSpy(stubs)
-        return Pair(PhotoImageViewModel(imageDataLoader, imageURL), imageDataLoader)
+        val sut = PhotoImageViewModel<ByteArray>(imageDataLoader, imageURL, { it })
+        return Pair(sut, imageDataLoader)
     }
 
     private class ImageDataLoaderSpy(private val stubs: MutableList<Result<ByteArray, Error>>) :

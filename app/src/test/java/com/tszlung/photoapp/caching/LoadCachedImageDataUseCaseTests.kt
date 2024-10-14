@@ -5,7 +5,7 @@ import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import com.tszlung.photoapp.helpers.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
@@ -20,7 +20,7 @@ class LoadCachedImageDataUseCaseTests {
     }
 
     @Test
-    fun `requests data with url from store`() = runBlocking {
+    fun `requests data with url from store`() = runTest {
         val (sut, store) = makeSUT()
         val url = URL("https://a-url.com")
 
@@ -30,7 +30,7 @@ class LoadCachedImageDataUseCaseTests {
     }
 
     @Test
-    fun `delivers data not found error when no cache`() = runBlocking {
+    fun `delivers data not found error when no cache`() = runTest {
         val (sut, _) = makeSUT()
 
         when (val result = sut.loadFrom(anyURL())) {
@@ -44,7 +44,7 @@ class LoadCachedImageDataUseCaseTests {
     }
 
     @Test
-    fun `delivers failed error on store error after cache retrieval`() = runBlocking {
+    fun `delivers failed error on store error after cache retrieval`() = runTest {
         val (sut, _) = makeSUT(retrievalStub = Result.Failure(ImageDataStoreSpy.StoreError.ANY_ERROR))
 
         when (val result = sut.loadFrom(anyURL())) {
@@ -58,7 +58,7 @@ class LoadCachedImageDataUseCaseTests {
     }
 
     @Test
-    fun `delivers stored cache data`() = runBlocking {
+    fun `delivers stored cache data`() = runTest {
         val data = anyData()
         val (sut, _) = makeSUT(retrievalStub = Result.Success(data))
 

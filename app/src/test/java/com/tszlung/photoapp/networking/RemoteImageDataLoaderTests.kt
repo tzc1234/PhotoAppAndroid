@@ -3,7 +3,7 @@ package com.tszlung.photoapp.networking
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.util.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
@@ -18,7 +18,7 @@ class RemoteImageDataLoaderTests {
     }
 
     @Test
-    fun `load from URL`() = runBlocking {
+    fun `load from URL`() = runTest {
         val (sut, client) = makSUT()
         val url = URL("https://a-url.com")
 
@@ -28,7 +28,7 @@ class RemoteImageDataLoaderTests {
     }
 
     @Test
-    fun `delivers connectivity error on client error`() = runBlocking {
+    fun `delivers connectivity error on client error`() = runTest {
         val (sut, _) = makSUT(stub = Result.Failure(HTTPClientError.UNKNOWN))
 
         when (val result = sut.loadFrom(anyURL())) {
@@ -38,7 +38,7 @@ class RemoteImageDataLoaderTests {
     }
 
     @Test
-    fun `delivers invalid data error on client empty data`() = runBlocking {
+    fun `delivers invalid data error on client empty data`() = runTest {
         val emptyData = ByteArray(size = 0)
         val (sut, _) = makSUT(stub = Result.Success(emptyData))
 
@@ -49,7 +49,7 @@ class RemoteImageDataLoaderTests {
     }
 
     @Test
-    fun `delivers data on received client data`() = runBlocking {
+    fun `delivers data on received client data`() = runTest {
         val data = anyData()
         val (sut, _) = makSUT(stub = Result.Success(data))
 
