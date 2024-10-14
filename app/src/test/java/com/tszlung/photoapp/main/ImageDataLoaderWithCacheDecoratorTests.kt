@@ -30,10 +30,10 @@ class ImageDataLoaderWithCacheDecoratorTests {
 
     @Test
     fun `delivers error on loader failure`() = runTest {
-        val (sut, _) = makeSUT(Result.Failure(LoaderError.ANY))
+        val (sut, _) = makeSUT(Result.Failure(AnyError.ANY))
 
         when (val result = sut.loadFrom(anyURL())) {
-            is Result.Failure -> assertEquals(LoaderError.ANY, result.error)
+            is Result.Failure -> assertEquals(AnyError.ANY, result.error)
             is Result.Success -> fail("should not be success")
         }
     }
@@ -52,7 +52,7 @@ class ImageDataLoaderWithCacheDecoratorTests {
     @Test
     fun `does not cache data with url on loader failure`() = runTest {
         val cache = ImageDataCacheSpy()
-        val (sut, _) = makeSUT(Result.Failure(LoaderError.ANY), cache)
+        val (sut, _) = makeSUT(Result.Failure(AnyError.ANY), cache)
 
         sut.loadFrom(anyURL())
 
@@ -71,6 +71,21 @@ class ImageDataLoaderWithCacheDecoratorTests {
         assertEquals(listOf(ImageDataCacheSpy.Cached(data, url)), cache.cachedData)
     }
 
+    @Test
+    fun `ignores error on cache error`() = runTest {
+        val cache = ImageDataCacheSpy(Result.Failure(AnyError.ANY))
+        val data = anyData()
+        val url = anyURL()
+        val (sut, _) = makeSUT(Result.Success(data), cache)
+
+        sut.loadFrom(url)
+
+        when (val result = sut.loadFrom(anyURL())) {
+            is Result.Failure -> fail("should not be failure")
+            is Result.Success -> assertEquals(data, result.data)
+        }
+    }
+
     // region Helpers
     private fun makeSUT(
         stub: Result<ByteArray, Error> = Result.Success(anyData()),
@@ -81,18 +96,16 @@ class ImageDataLoaderWithCacheDecoratorTests {
         return Pair(sut, loader)
     }
 
-    private enum class LoaderError : Error {
-        ANY
-    }
+    private enum class AnyError : Error { ANY }
 
-    private class ImageDataCacheSpy : ImageDataCache {
+    private class ImageDataCacheSpy(private val stub: Result<Unit, Error> = Result.Success(Unit)) : ImageDataCache {
         data class Cached(val data: ByteArray, val url: URL)
 
         val cachedData = mutableListOf<Any>()
 
         override suspend fun save(data: ByteArray, url: URL): Result<Unit, Error> {
             cachedData.add(Cached(data, url))
-            return Result.Success(Unit)
+            return stub
         }
     }
 
