@@ -59,6 +59,18 @@ class ImageDataLoaderWithCacheDecoratorTests {
         assertTrue(cache.cachedData.isEmpty())
     }
 
+    @Test
+    fun `caches data with url on loader success`() = runTest {
+        val cache = ImageDataCacheSpy()
+        val data = anyData()
+        val url = anyURL()
+        val (sut, _) = makeSUT(Result.Success(data), cache)
+
+        sut.loadFrom(url)
+
+        assertEquals(listOf(ImageDataCacheSpy.Cached(data, url)), cache.cachedData)
+    }
+
     // region Helpers
     private fun makeSUT(
         stub: Result<ByteArray, Error> = Result.Success(anyData()),
@@ -74,7 +86,14 @@ class ImageDataLoaderWithCacheDecoratorTests {
     }
 
     private class ImageDataCacheSpy : ImageDataCache {
+        data class Cached(val data: ByteArray, val url: URL)
+
         val cachedData = mutableListOf<Any>()
+
+        override suspend fun save(data: ByteArray, url: URL): Result<Unit, Error> {
+            cachedData.add(Cached(data, url))
+            return Result.Success(Unit)
+        }
     }
 
     private class ImageDataLoaderSpy(private val stub: Result<ByteArray, Error>) : ImageDataLoader {
@@ -89,7 +108,7 @@ class ImageDataLoaderWithCacheDecoratorTests {
 }
 
 interface ImageDataCache {
-
+    suspend fun save(data: ByteArray, url: URL): Result<Unit, Error>
 }
 
 class ImageDataLoaderWithCacheDecorator(
@@ -97,6 +116,12 @@ class ImageDataLoaderWithCacheDecorator(
     private val cache: ImageDataCache
 ) : ImageDataLoader {
     override suspend fun loadFrom(url: URL): Result<ByteArray, Error> {
-        return loader.loadFrom(url)
+        return when (val result = loader.loadFrom(url)) {
+            is Result.Failure -> Result.Failure(result.error)
+            is Result.Success -> {
+                cache.save(result.data, url)
+                Result.Success(result.data)
+            }
+        }
     }
 }
