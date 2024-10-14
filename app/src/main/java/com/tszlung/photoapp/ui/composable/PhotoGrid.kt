@@ -1,4 +1,4 @@
-package com.tszlung.photoapp.composables
+package com.tszlung.photoapp.ui.composable
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize

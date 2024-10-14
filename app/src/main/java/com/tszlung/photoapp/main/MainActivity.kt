@@ -24,9 +24,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tszlung.photoapp.caching.LocalImageDataLoader
 import com.tszlung.photoapp.caching.infra.LruImageDataStore
-import com.tszlung.photoapp.composables.ErrorToast
-import com.tszlung.photoapp.composables.PhotoCard
-import com.tszlung.photoapp.composables.PhotosGrid
+import com.tszlung.photoapp.ui.composable.ErrorToast
+import com.tszlung.photoapp.ui.composable.PhotoCard
+import com.tszlung.photoapp.ui.composable.PhotosGrid
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.networking.RemoteImageDataLoader
 import com.tszlung.photoapp.networking.RemotePhotosLoader

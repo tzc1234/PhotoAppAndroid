@@ -1,4 +1,4 @@
-package com.tszlung.photoapp.composables
+package com.tszlung.photoapp.ui.composable
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable

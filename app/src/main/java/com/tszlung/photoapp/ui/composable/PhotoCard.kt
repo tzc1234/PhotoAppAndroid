@@ -1,4 +1,4 @@
-package com.tszlung.photoapp.composables
+package com.tszlung.photoapp.ui.composable
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import com.tszlung.photoapp.composables.modifiers.shimmer
+import com.tszlung.photoapp.ui.composable.modifiers.shimmer
 
 @Composable
 fun PhotoCard(imageBitmap: ImageBitmap?, author: String, isShimming: Boolean) {
