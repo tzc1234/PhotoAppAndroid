@@ -32,8 +32,8 @@ import com.tszlung.photoapp.networking.RemoteImageDataLoader
 import com.tszlung.photoapp.networking.RemotePhotosLoader
 import com.tszlung.photoapp.networking.infra.KtorHTTPClient
 import com.tszlung.photoapp.ui.theme.PhotoAppTheme
-import com.tszlung.photoapp.viewModels.PhotoImageViewModel
-import com.tszlung.photoapp.viewModels.PhotosViewModel
+import com.tszlung.photoapp.presentation.PhotoImageViewModel
+import com.tszlung.photoapp.presentation.PhotosViewModel
 import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)

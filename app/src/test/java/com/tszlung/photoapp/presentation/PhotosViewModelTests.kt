@@ -1,4 +1,4 @@
-package com.tszlung.photoapp.viewModels
+package com.tszlung.photoapp.presentation
 
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.features.PhotosLoader
@@ -6,7 +6,7 @@ import com.tszlung.photoapp.helpers.AnyError
 import com.tszlung.photoapp.helpers.makePhoto
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
-import com.tszlung.photoapp.viewModels.helpers.MainCoroutineExtension
+import com.tszlung.photoapp.presentation.helpers.MainCoroutineExtension
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest

@@ -1,11 +1,11 @@
-package com.tszlung.photoapp.viewModels
+package com.tszlung.photoapp.presentation
 
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.helpers.AnyError
 import com.tszlung.photoapp.helpers.anyData
 import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.util.*
-import com.tszlung.photoapp.viewModels.helpers.MainCoroutineExtension
+import com.tszlung.photoapp.presentation.helpers.MainCoroutineExtension
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest

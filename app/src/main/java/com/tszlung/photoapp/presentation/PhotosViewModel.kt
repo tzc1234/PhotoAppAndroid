@@ -1,4 +1,4 @@
-package com.tszlung.photoapp.viewModels
+package com.tszlung.photoapp.presentation
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

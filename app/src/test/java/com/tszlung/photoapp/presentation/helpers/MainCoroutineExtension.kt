@@ -1,4 +1,4 @@
-package com.tszlung.photoapp.viewModels.helpers
+package com.tszlung.photoapp.presentation.helpers
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
