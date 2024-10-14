@@ -7,6 +7,7 @@ import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 import java.net.URL
 
 class ImageDataLoaderWithCacheDecoratorTests {
@@ -25,6 +26,16 @@ class ImageDataLoaderWithCacheDecoratorTests {
         sut.loadFrom(url)
 
         assertEquals(listOf(url), loader.requestURLs)
+    }
+
+    @Test
+    fun `delivers error on loader failure`() = runTest {
+        val (sut, _) = makeSUT()
+
+        when (val result = sut.loadFrom(anyURL())) {
+            is Result.Failure -> assertEquals(LoaderError.ANY, result.error)
+            is Result.Success -> fail("should not be success")
+        }
     }
 
     // region Helpers
