@@ -81,7 +81,7 @@ class ImageDataLoaderWithCacheDecoratorTests {
 
         sut.loadFrom(url)
 
-        when (val result = sut.loadFrom(anyURL())) {
+        when (val result = sut.loadFrom(url)) {
             is Result.Failure -> fail("should not be failure")
             is Result.Success -> assertEquals(data, result.data)
         }
