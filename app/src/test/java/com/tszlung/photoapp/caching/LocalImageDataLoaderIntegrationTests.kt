@@ -4,13 +4,13 @@ import com.tszlung.photoapp.caching.infra.LruImageDataStore
 import com.tszlung.photoapp.helpers.anyData
 import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.util.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class LocalImageDataLoaderIntegrationTests {
     @Test
-    fun `delivers saved data on a separate instance`() = runBlocking {
+    fun `delivers saved data on a separate instance`() = runTest {
         val store = LruImageDataStore()
         val loaderForSave = LocalImageDataLoader(store)
         val loaderForLoad = LocalImageDataLoader(store)
@@ -23,7 +23,7 @@ class LocalImageDataLoaderIntegrationTests {
     }
 
     @Test
-    fun `overrides saved data on a separate instance`() = runBlocking {
+    fun `overrides saved data on a separate instance`() = runTest {
         val store = LruImageDataStore()
         val loaderForFirstSave = LocalImageDataLoader(store)
         val loaderForLastSave = LocalImageDataLoader(store)

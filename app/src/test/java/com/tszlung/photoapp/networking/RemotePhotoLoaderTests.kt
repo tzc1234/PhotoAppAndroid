@@ -8,7 +8,7 @@ import com.tszlung.photoapp.features.*
 import com.tszlung.photoapp.helpers.*
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -22,7 +22,7 @@ class RemotePhotoLoaderTests {
     }
 
     @Test
-    fun `requests URL from client`() = runBlocking {
+    fun `requests URL from client`() = runTest {
         val url = URL("https://a-url.com")
         val (sut, client) = makeSUT(url = url)
 
@@ -32,7 +32,7 @@ class RemotePhotoLoaderTests {
     }
 
     @Test
-    fun `delivers connectivity error on client's error`() = runBlocking {
+    fun `delivers connectivity error on client's error`() = runTest {
         val (sut, _) = makeSUT(stub = Result.Failure(HTTPClientError.UNKNOWN))
 
         when (val result = sut.load()) {
@@ -46,7 +46,7 @@ class RemotePhotoLoaderTests {
     }
 
     @Test
-    fun `delivers invalid data error on invalid data`() = runBlocking {
+    fun `delivers invalid data error on invalid data`() = runTest {
         val invalidData = "invalid".toByteArray(Charsets.UTF_8)
         val (sut, _) = makeSUT(stub = Result.Success(invalidData))
 
@@ -61,7 +61,7 @@ class RemotePhotoLoaderTests {
     }
 
     @Test
-    fun `delivers empty photos on empty photos data`() = runBlocking {
+    fun `delivers empty photos on empty photos data`() = runTest {
         val emptyPhotoData = "[]".toByteArray(Charsets.UTF_8)
         val (sut, _) = makeSUT(stub = Result.Success(emptyPhotoData))
 
@@ -72,7 +72,7 @@ class RemotePhotoLoaderTests {
     }
 
     @Test
-    fun `delivers photos on photos data`() = runBlocking {
+    fun `delivers photos on photos data`() = runTest {
         val photos = listOf(makePhoto(0), makePhoto(1), makePhoto(2))
         val (sut, _) = makeSUT(stub = Result.Success(photos.toData()))
 

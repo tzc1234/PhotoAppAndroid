@@ -5,7 +5,7 @@ import com.tszlung.photoapp.helpers.anyData
 import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
@@ -13,7 +13,7 @@ import java.net.URL
 
 class LruImageDataStoreTests {
     @Test
-    fun `delivers null data when no cache existed`() = runBlocking {
+    fun `delivers null data when no cache existed`() = runTest {
         val sut = LruImageDataStore()
         val url = anyURL()
 
@@ -21,7 +21,7 @@ class LruImageDataStoreTests {
     }
 
     @Test
-    fun `retrieves twice delivers null data when no cache exist, no side effects`() = runBlocking {
+    fun `retrieves twice delivers null data when no cache exist, no side effects`() = runTest {
         val sut = LruImageDataStore()
         val url = anyURL()
 
@@ -30,7 +30,7 @@ class LruImageDataStoreTests {
     }
 
     @Test
-    fun `delivers data on cache data`() = runBlocking {
+    fun `delivers data on cache data`() = runTest {
         val sut = LruImageDataStore()
         val data = anyData()
         val url = anyURL()
@@ -40,7 +40,7 @@ class LruImageDataStoreTests {
     }
 
     @Test
-    fun `retrieves twice delivers cached data, no side effects`() = runBlocking {
+    fun `retrieves twice delivers cached data, no side effects`() = runTest {
         val sut = LruImageDataStore()
         val data = anyData()
         val url = anyURL()
@@ -51,7 +51,7 @@ class LruImageDataStoreTests {
     }
 
     @Test
-    fun `inserts new data overrides the old cached data`() = runBlocking {
+    fun `inserts new data overrides the old cached data`() = runTest {
         val sut = LruImageDataStore()
         val oldData = "old".toByteArray(Charsets.UTF_8)
         val newData = "new".toByteArray(Charsets.UTF_8)

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import com.tszlung.photoapp.util.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 
 class CacheImageDataUseCaseTests {
     @Test
@@ -17,7 +17,7 @@ class CacheImageDataUseCaseTests {
     }
 
     @Test
-    fun `delivers failed error on store error after cache insertion`() = runBlocking {
+    fun `delivers failed error on store error after cache insertion`() = runTest {
         val (sut, _) = makeSUT(insertionStub = Result.Failure(ImageDataStoreSpy.StoreError.ANY_ERROR))
 
         when (val result = sut.save(data = anyData(), url = anyURL())) {
@@ -31,7 +31,7 @@ class CacheImageDataUseCaseTests {
     }
 
     @Test
-    fun `save data with url to store`() = runBlocking {
+    fun `save data with url to store`() = runTest {
         val (sut, store) = makeSUT()
         val data = anyData()
         val url = anyURL()

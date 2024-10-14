@@ -8,7 +8,7 @@ import io.ktor.client.engine.mock.MockEngine.Companion.invoke
 import io.ktor.client.request.HttpRequestData
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.fail
@@ -19,7 +19,7 @@ import java.net.URL
 
 class KtorHTTPClientTests {
     @Test
-    fun `requests URL and method from engine`() = runBlocking {
+    fun `requests URL and method from engine`() = runTest {
         val url = URL("https://a-url.com")
         val loggedMessages = mutableListOf<Pair<String, HttpMethod>>()
         val sut = makeSUT(statusCode = HttpStatusCode.OK) { request ->
@@ -33,7 +33,7 @@ class KtorHTTPClientTests {
 
     @ParameterizedTest
     @MethodSource("statusCodes5xx")
-    fun `fails on 5XX status codes`(statusCode: HttpStatusCode) = runBlocking {
+    fun `fails on 5XX status codes`(statusCode: HttpStatusCode) = runTest {
         val sut = makeSUT(statusCode = statusCode)
 
         when (val result = sut.getFrom(anyURL())) {
@@ -45,7 +45,7 @@ class KtorHTTPClientTests {
     @ParameterizedTest
     @MethodSource("statusCode4xx")
     fun `fails on 4xx status codes`(statusCode: HttpStatusCode, expectError: HTTPClientError) =
-        runBlocking {
+        runTest {
             val sut = makeSUT(statusCode = statusCode)
 
             when (val result = sut.getFrom(anyURL())) {
@@ -56,7 +56,7 @@ class KtorHTTPClientTests {
 
     @ParameterizedTest
     @MethodSource("statusCode3xx")
-    fun `fails on 3xx status codes`(statusCode: HttpStatusCode) = runBlocking {
+    fun `fails on 3xx status codes`(statusCode: HttpStatusCode) = runTest {
         val sut = makeSUT(statusCode = statusCode)
 
         when (val result = sut.getFrom(anyURL())) {
@@ -66,7 +66,7 @@ class KtorHTTPClientTests {
     }
 
     @Test
-    fun `fails on any exception`() = runBlocking {
+    fun `fails on any exception`() = runTest {
         val sut = makeSUT(statusCode = HttpStatusCode.OK, shouldThrowAnException = true)
 
         when (val result = sut.getFrom(anyURL())) {
@@ -77,7 +77,7 @@ class KtorHTTPClientTests {
 
     @ParameterizedTest
     @MethodSource("statusCode2xx")
-    fun `succeeds on 2xx status codes`(statusCode: HttpStatusCode) = runBlocking {
+    fun `succeeds on 2xx status codes`(statusCode: HttpStatusCode) = runTest {
         val content = "any"
         val sut = makeSUT(statusCode = statusCode, content = content)
 
