@@ -3,12 +3,13 @@ package com.tszlung.photoapp.main
 import com.tszlung.photoapp.features.ImageDataCache
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.helpers.*
+import com.tszlung.photoapp.main.helpers.failuresResult
+import com.tszlung.photoapp.main.helpers.successResult
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 import java.net.URL
 
 class ImageDataLoaderWithCacheDecoratorTests {
@@ -31,29 +32,28 @@ class ImageDataLoaderWithCacheDecoratorTests {
 
     @Test
     fun `delivers error on loader failure`() = runTest {
-        val (sut, _) = makeSUT(Result.Failure(AnyError.ANY))
+        val expectedResult = failuresResult()
+        val (sut, _) = makeSUT(expectedResult)
 
-        when (val result = sut.loadFrom(anyURL())) {
-            is Result.Failure -> assertEquals(AnyError.ANY, result.error)
-            is Result.Success -> fail("should not be success")
-        }
+        val result = sut.loadFrom(anyURL())
+
+        assertEquals(expectedResult, result)
     }
 
     @Test
     fun `delivers data on loader success`() = runTest {
-        val data = anyData()
-        val (sut, _) = makeSUT(Result.Success(data))
+        val expectedResult = successResult(anyData())
+        val (sut, _) = makeSUT(expectedResult)
 
-        when (val result = sut.loadFrom(anyURL())) {
-            is Result.Failure -> fail("should not be failure")
-            is Result.Success -> assertEquals(data, result.data)
-        }
+        val result = sut.loadFrom(anyURL())
+
+        assertEquals(expectedResult, result)
     }
 
     @Test
     fun `does not cache data with url on loader failure`() = runTest {
         val cache = ImageDataCacheSpy()
-        val (sut, _) = makeSUT(Result.Failure(AnyError.ANY), cache)
+        val (sut, _) = makeSUT(failuresResult(), cache)
 
         sut.loadFrom(anyURL())
 
@@ -75,16 +75,12 @@ class ImageDataLoaderWithCacheDecoratorTests {
     @Test
     fun `ignores error on cache error`() = runTest {
         val cache = ImageDataCacheSpy(Result.Failure(AnyError.ANY))
-        val data = anyData()
-        val url = anyURL()
-        val (sut, _) = makeSUT(Result.Success(data), cache)
+        val expectedResult = successResult(anyData())
+        val (sut, _) = makeSUT(expectedResult, cache)
 
-        sut.loadFrom(url)
+        val result = sut.loadFrom(anyURL())
 
-        when (val result = sut.loadFrom(url)) {
-            is Result.Failure -> fail("should not be failure")
-            is Result.Success -> assertEquals(data, result.data)
-        }
+        assertEquals(expectedResult, result)
     }
 
     // region Helpers
