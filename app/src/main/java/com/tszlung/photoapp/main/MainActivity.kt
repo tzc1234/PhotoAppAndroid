@@ -1,4 +1,4 @@
-package com.tszlung.photoapp
+package com.tszlung.photoapp.main
 
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
