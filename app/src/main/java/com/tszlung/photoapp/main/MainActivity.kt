@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tszlung.photoapp.caching.LocalImageDataLoader
+import com.tszlung.photoapp.caching.infra.LruImageDataStore
 import com.tszlung.photoapp.composables.ErrorToast
 import com.tszlung.photoapp.composables.PhotoCard
 import com.tszlung.photoapp.composables.PhotosGrid
@@ -40,6 +42,18 @@ class MainActivity : ComponentActivity() {
     private val client = KtorHTTPClient()
     private val remotePhotosLoader = RemotePhotosLoader(client, photosURL)
     private val remoteImageDataLoader = RemoteImageDataLoader(client)
+
+    private val store = LruImageDataStore()
+    private val localImageDataLoader = LocalImageDataLoader(store)
+
+    private val remoteImageDataLoaderWithCache = ImageDataLoaderWithCacheDecorator(
+        remoteImageDataLoader,
+        localImageDataLoader
+    )
+    private val imageDataLoaderWithFallback = ImageDataLoaderWithFallbackComposite(
+        localImageDataLoader,
+        remoteImageDataLoaderWithCache
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +93,10 @@ class MainActivity : ComponentActivity() {
                             factory = object : ViewModelProvider.Factory {
                                 @Suppress("UNCHECKED_CAST")
                                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                    return PhotoImageViewModel(remoteImageDataLoader, photoURL) as T
+                                    return PhotoImageViewModel(
+                                        imageDataLoaderWithFallback,
+                                        photoURL
+                                    ) as T
                                 }
                             }
                         )
