@@ -2,6 +2,7 @@ package com.tszlung.photoapp.viewModels
 
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.features.PhotosLoader
+import com.tszlung.photoapp.helpers.AnyError
 import com.tszlung.photoapp.helpers.makePhoto
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
@@ -49,7 +50,7 @@ class PhotosViewModelTests {
 
     @Test
     fun `load photos delivers error message when received error from loader`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY), Result.Success(listOf())))
+        val sut = makeSUT(mutableListOf(Result.Failure(AnyError.ANY), Result.Success(listOf())))
 
         sut.loadPhotos()
         assertNull(sut.errorMessage)
@@ -64,7 +65,7 @@ class PhotosViewModelTests {
 
     @Test
     fun `set error message to null after resetErrorMessage`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Failure(LoaderError.ANY)))
+        val sut = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
 
         sut.loadPhotos()
         advanceUntilIdle()
@@ -100,7 +101,7 @@ class PhotosViewModelTests {
     @Test
     fun `load photos does not change previously loaded photos after an error from loader`() = runTest {
         val photos = listOf(makePhoto(0))
-        val sut = makeSUT(mutableListOf(Result.Success(photos), Result.Failure(LoaderError.ANY)))
+        val sut = makeSUT(mutableListOf(Result.Success(photos), Result.Failure(AnyError.ANY)))
 
         sut.loadPhotos()
         advanceUntilIdle()
@@ -115,10 +116,6 @@ class PhotosViewModelTests {
     private fun makeSUT(stubs: MutableList<Result<List<Photo>, Error>> = mutableListOf()): PhotosViewModel {
         val photosLoader = PhotosLoaderStub(stubs)
         return PhotosViewModel(photosLoader)
-    }
-
-    private enum class LoaderError : Error {
-        ANY
     }
 
     private class PhotosLoaderStub(private val stubs: MutableList<Result<List<Photo>, Error>>) :

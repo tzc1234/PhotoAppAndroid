@@ -96,8 +96,6 @@ class ImageDataLoaderWithCacheDecoratorTests {
         return Pair(sut, loader)
     }
 
-    private enum class AnyError : Error { ANY }
-
     private class ImageDataCacheSpy(private val stub: Result<Unit, Error> = Result.Success(Unit)) : ImageDataCache {
         data class Cached(val data: ByteArray, val url: URL)
 
