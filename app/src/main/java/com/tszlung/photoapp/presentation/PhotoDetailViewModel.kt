@@ -11,12 +11,10 @@ import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.launch
 
 class PhotoDetailViewModel<I>(
-    private val photo: Photo,
+    val photo: Photo,
     private val loader: ImageDataLoader,
     private val imageConvertor: (ByteArray) -> I?
 ) : ViewModel() {
-    val author get() = photo.author
-    val webURL get() = photo.webURL
     var isLoading by mutableStateOf(false)
         private set
     var image by mutableStateOf<I?>(null)

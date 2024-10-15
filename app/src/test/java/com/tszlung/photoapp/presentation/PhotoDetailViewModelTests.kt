@@ -23,8 +23,7 @@ class PhotoDetailViewModelTests {
         val photo = makePhoto(0)
         val (sut, loader) = makeSUT(photo)
 
-        assertEquals(photo.author, sut.author)
-        assertEquals(photo.webURL, sut.webURL)
+        assertEquals(photo, sut.photo)
         assertFalse(sut.isLoading)
         assertTrue(loader.requestURLs.isEmpty())
     }
