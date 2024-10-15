@@ -91,6 +91,20 @@ class PhotoDetailViewModelTests {
         assertEquals(image, sut.image)
     }
 
+    @Test
+    fun `loadImage delivers previous image on loader failure`() = runTest {
+        val image = anyData()
+        val (sut, _) = makeSUT(stubs = mutableListOf(Result.Success(image), Result.Failure(AnyError.ANY)))
+
+        sut.loadImage()
+        advanceUntilIdle()
+        assertEquals(image, sut.image)
+
+        sut.loadImage()
+        advanceUntilIdle()
+        assertEquals(image, sut.image)
+    }
+
     // region Helpers
     private fun makeSUT(
         photo: Photo = makePhoto(0),
@@ -119,10 +133,8 @@ class PhotoDetailViewModel<I>(
     private val imageConvertor: (ByteArray) -> I?
 ) :
     ViewModel() {
-    val author: String
-        get() = photo.author
-    val webURL: URL
-        get() = photo.webURL
+    val author get() = photo.author
+    val webURL get() = photo.webURL
     var isLoading by mutableStateOf(false)
         private set
     var image by mutableStateOf<I?>(null)
@@ -132,7 +144,7 @@ class PhotoDetailViewModel<I>(
         isLoading = true
         viewModelScope.launch {
             when (val result = loader.loadFrom(photo.imageURL)) {
-                is Result.Failure -> image = null
+                is Result.Failure -> Unit
                 is Result.Success -> image = imageConvertor(result.data)
             }
 
