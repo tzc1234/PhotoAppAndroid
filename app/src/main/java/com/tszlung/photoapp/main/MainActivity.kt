@@ -152,14 +152,7 @@ class MainActivity : ComponentActivity() {
                                     @Suppress("UNCHECKED_CAST")
                                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
                                         return PhotoDetailViewModel(
-                                            Photo(
-                                                nav.id,
-                                                nav.author,
-                                                nav.width,
-                                                nav.height,
-                                                URL(nav.webURL),
-                                                URL(nav.imageURL)
-                                            ),
+                                            photo = nav.toPhoto(),
                                             loader = imageDataLoaderWithFallback
                                         ) { imageConverter(it) } as T
                                     }
