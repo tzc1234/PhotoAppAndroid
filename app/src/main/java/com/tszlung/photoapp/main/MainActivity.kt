@@ -3,6 +3,7 @@ package com.tszlung.photoapp.main
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.tszlung.photoapp.caching.LocalImageDataLoader
 import com.tszlung.photoapp.caching.infra.LruImageDataStore
 import com.tszlung.photoapp.ui.composable.ErrorToast
@@ -34,6 +39,8 @@ import com.tszlung.photoapp.networking.infra.KtorHTTPClient
 import com.tszlung.photoapp.ui.theme.PhotoAppTheme
 import com.tszlung.photoapp.presentation.PhotoImageViewModel
 import com.tszlung.photoapp.presentation.PhotosViewModel
+import com.tszlung.photoapp.ui.composable.PhotoDetail
+import kotlinx.serialization.Serializable
 import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,61 +66,97 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val photosViewModel = viewModel<PhotosViewModel>(
-                factory = object : ViewModelProvider.Factory {
-                    @Suppress("UNCHECKED_CAST")
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return PhotosViewModel(remotePhotosLoader) as T
-                    }
-                }
-            )
-
             PhotoAppTheme {
+                val photosViewModel = viewModel<PhotosViewModel>(
+                    factory = object : ViewModelProvider.Factory {
+                        @Suppress("UNCHECKED_CAST")
+                        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                            return PhotosViewModel(remotePhotosLoader) as T
+                        }
+                    }
+                )
+
+                LaunchedEffect(key1 = Unit) {
+                    photosViewModel.loadPhotos()
+                }
+
                 ErrorToast(photosViewModel.errorMessage, photosViewModel::resetErrorMessage)
 
+                val navController = rememberNavController()
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        TopAppBar(title = { Text("Photos") })
-                    }
+                    topBar = { TopAppBar(title = { Text("Photos") }) }
                 ) { innerPadding ->
-                    LaunchedEffect(key1 = Unit) {
-                        photosViewModel.loadPhotos()
-                    }
+                    NavHost(navController = navController, startDestination = PhotoGridNav) {
+                        composable<PhotoGridNav> {
+                            PhotosGrid(
+                                isRefreshing = photosViewModel.isLoading,
+                                onRefresh = photosViewModel::loadPhotos,
+                                modifier = Modifier.padding(innerPadding),
+                                photos = photosViewModel.photos,
+                            ) { photo ->
+                                val photoImageViewModel =
+                                    viewModel<PhotoImageViewModel<ImageBitmap>>(
+                                        key = photo.id,
+                                        factory = object : ViewModelProvider.Factory {
+                                            @Suppress("UNCHECKED_CAST")
+                                            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                                return PhotoImageViewModel<ImageBitmap>(
+                                                    imageDataLoaderWithFallback,
+                                                    makePhotoURL(photo.id)
+                                                ) { imageConverter(it) } as T
+                                            }
+                                        }
+                                    )
 
-                    PhotosGrid(
-                        isRefreshing = photosViewModel.isLoading,
-                        onRefresh = photosViewModel::loadPhotos,
-                        modifier = Modifier.padding(innerPadding),
-                        photos = photosViewModel.photos,
-                    ) { photo ->
-                        val photoImageViewModel = viewModel<PhotoImageViewModel<ImageBitmap>>(
-                            key = photo.id,
-                            factory = object : ViewModelProvider.Factory {
-                                @Suppress("UNCHECKED_CAST")
-                                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                    return PhotoImageViewModel(
-                                        imageDataLoaderWithFallback,
-                                        makePhotoURL(photo.id)
-                                    ) { imageConverter(it) } as T
+                                LaunchedEffect(key1 = Unit) {
+                                    photoImageViewModel.loadImageData()
+                                }
+
+                                PhotoCard(
+                                    photoImageViewModel.image,
+                                    photo.author,
+                                    photoImageViewModel.isLoading,
+                                ) {
+                                    navController.navigate(
+                                        PhotoDetailNav(
+                                            photo.author,
+                                            photo.width,
+                                            photo.height,
+                                            photo.webURL.toString()
+                                        )
+                                    )
                                 }
                             }
-                        )
-
-                        LaunchedEffect(key1 = Unit) {
-                            photoImageViewModel.loadImageData()
                         }
 
-                        PhotoCard(
-                            photoImageViewModel.image,
-                            photo.author,
-                            photoImageViewModel.isLoading
-                        )
+                        composable<PhotoDetailNav> {
+                            val nav = it.toRoute<PhotoDetailNav>()
+                            PhotoDetail(
+                                modifier = Modifier.padding(innerPadding),
+                                nav.author,
+                                nav.photoWidth,
+                                nav.photoHeight,
+                                nav.url,
+                                makeImageBitmap()
+                            )
+                        }
                     }
                 }
             }
         }
     }
+
+    @Serializable
+    object PhotoGridNav
+
+    @Serializable
+    data class PhotoDetailNav(
+        val author: String,
+        val photoWidth: Int,
+        val photoHeight: Int,
+        val url: String
+    )
 
     private fun makePhotoURL(photoId: String): URL {
         val photoDimension = 600
@@ -140,7 +183,7 @@ fun DefaultPreview() {
                 modifier = Modifier.padding(innerPadding),
                 photos = listOf(makePhoto(0), makePhoto(1), makePhoto(2)),
             ) { photo ->
-                PhotoCard(makeImageBitmap(), photo.author, false)
+                PhotoCard(makeImageBitmap(), photo.author, false) {}
             }
         }
     }
@@ -155,7 +198,7 @@ private fun makePhoto(index: Int) = Photo(
     imageURL = URL("https://url-$index.com")
 )
 
-fun makeImageBitmap(color: Int = android.graphics.Color.RED): ImageBitmap {
+fun makeImageBitmap(color: Int = Color.RED): ImageBitmap {
     val bitmap = Bitmap.createBitmap(1, 1, Config.ARGB_8888)
     bitmap.eraseColor(color)
     return bitmap.asImageBitmap()

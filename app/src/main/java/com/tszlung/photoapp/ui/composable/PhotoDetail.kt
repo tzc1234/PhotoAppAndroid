@@ -25,12 +25,17 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.main.makeImageBitmap
-import java.net.URL
 
 @Composable
-fun PhotoDetail(modifier: Modifier = Modifier, photo: Photo, imageBitmap: ImageBitmap?) {
+fun PhotoDetail(
+    modifier: Modifier = Modifier,
+    author: String,
+    photoWidth: Int,
+    photoHeight: Int,
+    url: String,
+    imageBitmap: ImageBitmap?
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -42,7 +47,7 @@ fun PhotoDetail(modifier: Modifier = Modifier, photo: Photo, imageBitmap: ImageB
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.secondary)
-                .aspectRatio((photo.width / photo.height).toFloat())
+                .aspectRatio((photoWidth / photoHeight).toFloat())
                 .weight(1f)
         ) {
             imageBitmap?.let {
@@ -63,14 +68,14 @@ fun PhotoDetail(modifier: Modifier = Modifier, photo: Photo, imageBitmap: ImageB
             verticalArrangement = Arrangement.Bottom
         ) {
             Text(
-                photo.author,
+                author,
                 modifier = Modifier.padding(horizontal = 8.dp),
                 style = MaterialTheme.typography.titleMedium
             )
 
             HyperlinkText(
                 modifier = Modifier.padding(horizontal = 8.dp),
-                url = photo.webURL.toString()
+                url = url
             )
         }
     }
@@ -95,14 +100,10 @@ fun Preview() {
     ) { innerPadding ->
         PhotoDetail(
             modifier = Modifier.padding(innerPadding),
-            Photo(
-                id = "0",
-                author = "Author 0",
-                width = 300,
-                height = 300,
-                webURL = URL("https://www.google.com/"),
-                imageURL = URL("https://url.com")
-            ),
+            "Author 0",
+            300,
+            300,
+            "https://www.google.com/",
             makeImageBitmap()
         )
     }
