@@ -47,7 +47,8 @@ import com.tszlung.photoapp.ui.theme.PhotoAppTheme
 import com.tszlung.photoapp.presentation.PhotoImageViewModel
 import com.tszlung.photoapp.presentation.PhotosViewModel
 import com.tszlung.photoapp.ui.composable.PhotoDetail
-import kotlinx.serialization.Serializable
+import com.tszlung.photoapp.main.nav.PhotoDetailNav
+import com.tszlung.photoapp.main.nav.PhotoGridNav
 import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -202,19 +203,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    @Serializable
-    object PhotoGridNav
-
-    @Serializable
-    data class PhotoDetailNav(
-        val id: String,
-        val author: String,
-        val width: Int,
-        val height: Int,
-        val webURL: String,
-        val imageURL: String
-    )
 
     private fun makePhotoURL(photoId: String): URL {
         val photoDimension = 600
