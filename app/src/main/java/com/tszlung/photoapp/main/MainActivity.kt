@@ -155,7 +155,7 @@ private fun makePhoto(index: Int) = Photo(
     imageURL = URL("https://url-$index.com")
 )
 
-private fun makeImageBitmap(color: Int = android.graphics.Color.RED): ImageBitmap {
+fun makeImageBitmap(color: Int = android.graphics.Color.RED): ImageBitmap {
     val bitmap = Bitmap.createBitmap(1, 1, Config.ARGB_8888)
     bitmap.eraseColor(color)
     return bitmap.asImageBitmap()
