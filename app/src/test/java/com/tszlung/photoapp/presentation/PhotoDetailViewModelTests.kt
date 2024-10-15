@@ -5,9 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.tszlung.photoapp.features.ImageDataLoader
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.helpers.AnyError
+import com.tszlung.photoapp.helpers.anyData
 import com.tszlung.photoapp.helpers.makePhoto
 import com.tszlung.photoapp.presentation.helpers.MainCoroutineExtension
 import com.tszlung.photoapp.util.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -27,6 +31,7 @@ class PhotoDetailViewModelTests {
 
         assertEquals(photo.author, sut.author)
         assertEquals(photo.webURL, sut.webURL)
+        assertFalse(sut.isLoading)
         assertTrue(loader.requestURLs.isEmpty())
     }
 
@@ -39,6 +44,28 @@ class PhotoDetailViewModelTests {
         advanceUntilIdle()
 
         assertEquals(listOf(photo.imageURL), loader.requestURLs)
+    }
+
+    @Test
+    fun `loadImage delivers loading state properly`() = runTest {
+        val (sut, _) = makeSUT(
+            stubs = mutableListOf(
+                Result.Success(anyData()),
+                Result.Failure(AnyError.ANY)
+            )
+        )
+
+        sut.loadImage()
+        assertTrue(sut.isLoading, "Expect loading after 1st loadImage called")
+
+        advanceUntilIdle()
+        assertFalse(sut.isLoading, "Expect not loading after loader success")
+
+        sut.loadImage()
+        assertTrue(sut.isLoading, "Expect loading after 2nd loadImage called")
+
+        advanceUntilIdle()
+        assertFalse(sut.isLoading, "Expect not loading after loader failure")
     }
 
     // region Helpers
@@ -69,10 +96,14 @@ class PhotoDetailViewModel(private val photo: Photo, private val loader: ImageDa
         get() = photo.author
     val webURL: URL
         get() = photo.webURL
+    var isLoading by mutableStateOf(false)
 
     fun loadImage() {
+        isLoading = true
         viewModelScope.launch {
             loader.loadFrom(photo.imageURL)
+
+            isLoading = false
         }
     }
 }
