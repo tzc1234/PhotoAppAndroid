@@ -135,7 +135,7 @@ class MainActivity : ComponentActivity() {
                                     factory = object : ViewModelProvider.Factory {
                                         @Suppress("UNCHECKED_CAST")
                                         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                            return PhotoImageViewModel<ImageBitmap>(
+                                            return PhotoImageViewModel(
                                                 imageDataLoaderWithFallback,
                                                 makePhotoURL(photo.id)
                                             ) { imageConverter(it) } as T
