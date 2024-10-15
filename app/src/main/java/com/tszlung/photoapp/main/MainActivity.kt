@@ -46,9 +46,10 @@ import com.tszlung.photoapp.presentation.PhotoDetailViewModel
 import com.tszlung.photoapp.ui.theme.PhotoAppTheme
 import com.tszlung.photoapp.presentation.PhotoImageViewModel
 import com.tszlung.photoapp.presentation.PhotosViewModel
-import com.tszlung.photoapp.ui.composable.PhotoDetail
 import com.tszlung.photoapp.main.nav.PhotoDetailNav
 import com.tszlung.photoapp.main.nav.PhotoGridNav
+import com.tszlung.photoapp.main.screens.PhotoDetailScreen
+import com.tszlung.photoapp.main.screens.PhotosScreen
 import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -124,46 +125,23 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NavHost(navController = navController, startDestination = PhotoGridNav) {
                         composable<PhotoGridNav> {
-                            PhotosGrid(
-                                isRefreshing = photosViewModel.isLoading,
-                                onRefresh = photosViewModel::loadPhotos,
+                            PhotosScreen(
                                 modifier = Modifier.padding(innerPadding),
-                                photos = photosViewModel.photos,
+                                navController = navController,
+                                photosViewModel = photosViewModel
                             ) { photo ->
-                                val photoImageViewModel =
-                                    viewModel<PhotoImageViewModel<ImageBitmap>>(
-                                        key = photo.id,
-                                        factory = object : ViewModelProvider.Factory {
-                                            @Suppress("UNCHECKED_CAST")
-                                            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                                return PhotoImageViewModel<ImageBitmap>(
-                                                    imageDataLoaderWithFallback,
-                                                    makePhotoURL(photo.id)
-                                                ) { imageConverter(it) } as T
-                                            }
+                                viewModel<PhotoImageViewModel<ImageBitmap>>(
+                                    key = photo.id,
+                                    factory = object : ViewModelProvider.Factory {
+                                        @Suppress("UNCHECKED_CAST")
+                                        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                            return PhotoImageViewModel<ImageBitmap>(
+                                                imageDataLoaderWithFallback,
+                                                makePhotoURL(photo.id)
+                                            ) { imageConverter(it) } as T
                                         }
-                                    )
-
-                                LaunchedEffect(key1 = Unit) {
-                                    photoImageViewModel.loadImageData()
-                                }
-
-                                PhotoCard(
-                                    photoImageViewModel.image,
-                                    photo.author,
-                                    photoImageViewModel.isLoading,
-                                ) {
-                                    navController.navigate(
-                                        PhotoDetailNav(
-                                            photo.id,
-                                            photo.author,
-                                            photo.width,
-                                            photo.height,
-                                            photo.webURL.toString(),
-                                            photo.imageURL.toString()
-                                        )
-                                    )
-                                }
+                                    }
+                                )
                             }
                         }
 
@@ -188,15 +166,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
 
-                            LaunchedEffect(key1 = Unit) {
-                                photoDetailViewModel.loadImage()
-                            }
-
-                            PhotoDetail(
+                            PhotoDetailScreen(
                                 modifier = Modifier.padding(innerPadding),
-                                photoDetailViewModel.photo,
-                                photoDetailViewModel.image,
-                                photoDetailViewModel.isLoading
+                                photoDetailViewModel = photoDetailViewModel
                             )
                         }
                     }
