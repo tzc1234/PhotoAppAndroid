@@ -47,7 +47,7 @@ fun PhotoDetail(modifier: Modifier = Modifier, photo: Photo, imageBitmap: ImageB
         ) {
             imageBitmap?.let {
                 Image(
-                    bitmap = imageBitmap,
+                    bitmap = it,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit

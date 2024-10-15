@@ -39,10 +39,11 @@ fun PhotoCard(imageBitmap: ImageBitmap?, author: String, isShimming: Boolean) {
     ) {
         Box(modifier = Modifier
             .aspectRatio(1f)
-            .shimmer(isShimming)) {
-            if (imageBitmap != null) {
+            .shimmer(isShimming)
+        ) {
+            imageBitmap?.let {
                 Image(
-                    bitmap = imageBitmap,
+                    bitmap = it,
                     contentDescription = null,
                     modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.FillWidth
