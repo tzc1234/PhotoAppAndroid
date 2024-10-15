@@ -111,7 +111,7 @@ class MainActivity : ComponentActivity() {
                                 title?.let { Text(it) }
                             },
                             navigationIcon = {
-                                if (currentDestination?.contains("PhotoGridNav") == false) {
+                                if (!(currentDestination ?: "").contains("PhotoGridNav")) {
                                     IconButton(onClick = { navController.navigateUp() }) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
