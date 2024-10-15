@@ -25,36 +25,31 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.main.makeImageBitmap
+import java.net.URL
+import kotlin.math.max
 
 @Composable
-fun PhotoDetail(
-    modifier: Modifier = Modifier,
-    author: String,
-    photoWidth: Int,
-    photoHeight: Int,
-    url: String,
-    imageBitmap: ImageBitmap?
-) {
+fun PhotoDetail(modifier: Modifier = Modifier, photo: Photo, imageBitmap: ImageBitmap?) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .then(modifier)
     ) {
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.weight(0.7f))
 
         Box(
             modifier = Modifier
-                .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.secondary)
-                .aspectRatio((photoWidth / photoHeight).toFloat())
-                .weight(1f)
+                .fillMaxWidth()
+                .aspectRatio(max(photo.width, 1).toFloat() / max(photo.height, 1).toFloat())
         ) {
             imageBitmap?.let {
                 Image(
                     bitmap = it,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.Fit
                 )
             }
@@ -68,14 +63,14 @@ fun PhotoDetail(
             verticalArrangement = Arrangement.Bottom
         ) {
             Text(
-                author,
+                photo.author,
                 modifier = Modifier.padding(horizontal = 8.dp),
                 style = MaterialTheme.typography.titleMedium
             )
 
             HyperlinkText(
                 modifier = Modifier.padding(horizontal = 8.dp),
-                url = url
+                url = photo.webURL.toString()
             )
         }
     }
@@ -100,11 +95,15 @@ fun Preview() {
     ) { innerPadding ->
         PhotoDetail(
             modifier = Modifier.padding(innerPadding),
-            "Author 0",
-            300,
-            300,
-            "https://www.google.com/",
-            makeImageBitmap()
+            photo = Photo(
+                id = "0",
+                author = "Author 0",
+                width = 300,
+                height = 300,
+                webURL = URL("https://www.google.com"),
+                imageURL = URL("https://a-url.com")
+            ),
+            imageBitmap = makeImageBitmap()
         )
     }
 }

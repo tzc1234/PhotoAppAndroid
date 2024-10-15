@@ -42,6 +42,7 @@ import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.networking.RemoteImageDataLoader
 import com.tszlung.photoapp.networking.RemotePhotosLoader
 import com.tszlung.photoapp.networking.infra.KtorHTTPClient
+import com.tszlung.photoapp.presentation.PhotoDetailViewModel
 import com.tszlung.photoapp.ui.theme.PhotoAppTheme
 import com.tszlung.photoapp.presentation.PhotoImageViewModel
 import com.tszlung.photoapp.presentation.PhotosViewModel
@@ -153,10 +154,12 @@ class MainActivity : ComponentActivity() {
                                 ) {
                                     navController.navigate(
                                         PhotoDetailNav(
+                                            photo.id,
                                             photo.author,
                                             photo.width,
                                             photo.height,
-                                            photo.webURL.toString()
+                                            photo.webURL.toString(),
+                                            photo.imageURL.toString()
                                         )
                                     )
                                 }
@@ -165,13 +168,33 @@ class MainActivity : ComponentActivity() {
 
                         composable<PhotoDetailNav> {
                             val nav = it.toRoute<PhotoDetailNav>()
+                            val photoDetailViewModel = viewModel<PhotoDetailViewModel<ImageBitmap>>(
+                                factory = object : ViewModelProvider.Factory {
+                                    @Suppress("UNCHECKED_CAST")
+                                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                                        return PhotoDetailViewModel<ImageBitmap>(
+                                            Photo(
+                                                nav.id,
+                                                nav.author,
+                                                nav.width,
+                                                nav.height,
+                                                URL(nav.webURL),
+                                                URL(nav.imageURL)
+                                            ),
+                                            loader = imageDataLoaderWithFallback
+                                        ) { imageConverter(it) } as T
+                                    }
+                                }
+                            )
+
+                            LaunchedEffect(key1 = Unit) {
+                                photoDetailViewModel.loadImage()
+                            }
+
                             PhotoDetail(
                                 modifier = Modifier.padding(innerPadding),
-                                nav.author,
-                                nav.photoWidth,
-                                nav.photoHeight,
-                                nav.url,
-                                makeImageBitmap()
+                                photoDetailViewModel.photo,
+                                photoDetailViewModel.image
                             )
                         }
                     }
@@ -185,10 +208,12 @@ class MainActivity : ComponentActivity() {
 
     @Serializable
     data class PhotoDetailNav(
+        val id: String,
         val author: String,
-        val photoWidth: Int,
-        val photoHeight: Int,
-        val url: String
+        val width: Int,
+        val height: Int,
+        val webURL: String,
+        val imageURL: String
     )
 
     private fun makePhotoURL(photoId: String): URL {
