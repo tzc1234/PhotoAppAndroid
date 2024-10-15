@@ -27,11 +27,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.main.makeImageBitmap
+import com.tszlung.photoapp.ui.composable.modifiers.shimmer
 import java.net.URL
 import kotlin.math.max
 
 @Composable
-fun PhotoDetail(modifier: Modifier = Modifier, photo: Photo, imageBitmap: ImageBitmap?) {
+fun PhotoDetail(
+    modifier: Modifier = Modifier,
+    photo: Photo,
+    imageBitmap: ImageBitmap?,
+    isShimming: Boolean
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,6 +50,7 @@ fun PhotoDetail(modifier: Modifier = Modifier, photo: Photo, imageBitmap: ImageB
                 .background(MaterialTheme.colorScheme.secondary)
                 .fillMaxWidth()
                 .aspectRatio(max(photo.width, 1).toFloat() / max(photo.height, 1).toFloat())
+                .shimmer(isShimming)
         ) {
             imageBitmap?.let {
                 Image(
@@ -103,7 +110,8 @@ fun Preview() {
                 webURL = URL("https://www.google.com"),
                 imageURL = URL("https://a-url.com")
             ),
-            imageBitmap = makeImageBitmap()
+            imageBitmap = makeImageBitmap(),
+            isShimming = false
         )
     }
 }

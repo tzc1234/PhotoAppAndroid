@@ -195,7 +195,8 @@ class MainActivity : ComponentActivity() {
                             PhotoDetail(
                                 modifier = Modifier.padding(innerPadding),
                                 photoDetailViewModel.photo,
-                                photoDetailViewModel.image
+                                photoDetailViewModel.image,
+                                photoDetailViewModel.isLoading
                             )
                         }
                     }
