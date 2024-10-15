@@ -79,13 +79,25 @@ class PhotoDetailViewModelTests {
         assertNull(sut.image)
     }
 
+    @Test
+    fun `loadImage delivers image on loader success`() = runTest {
+        val image = anyData()
+        val (sut, _) = makeSUT(stubs = mutableListOf(Result.Success(image)))
+
+        sut.loadImage()
+        assertNull(sut.image)
+
+        advanceUntilIdle()
+        assertEquals(image, sut.image)
+    }
+
     // region Helpers
     private fun makeSUT(
         photo: Photo = makePhoto(0),
         stubs: MutableList<Result<ByteArray, Error>> = mutableListOf(Result.Failure(AnyError.ANY))
-    ): Pair<PhotoDetailViewModel, ImageDataLoaderSpy> {
+    ): Pair<PhotoDetailViewModel<ByteArray>, ImageDataLoaderSpy> {
         val loader = ImageDataLoaderSpy(stubs)
-        val sut = PhotoDetailViewModel(photo, loader)
+        val sut = PhotoDetailViewModel(photo, loader, { it })
         return Pair(sut, loader)
     }
 
@@ -101,7 +113,11 @@ class PhotoDetailViewModelTests {
     // endregion
 }
 
-class PhotoDetailViewModel(private val photo: Photo, private val loader: ImageDataLoader) :
+class PhotoDetailViewModel<I>(
+    private val photo: Photo,
+    private val loader: ImageDataLoader,
+    private val imageConvertor: (ByteArray) -> I?
+) :
     ViewModel() {
     val author: String
         get() = photo.author
@@ -109,13 +125,16 @@ class PhotoDetailViewModel(private val photo: Photo, private val loader: ImageDa
         get() = photo.webURL
     var isLoading by mutableStateOf(false)
         private set
-    var image by mutableStateOf(null)
+    var image by mutableStateOf<I?>(null)
         private set
 
     fun loadImage() {
         isLoading = true
         viewModelScope.launch {
-            loader.loadFrom(photo.imageURL)
+            when (val result = loader.loadFrom(photo.imageURL)) {
+                is Result.Failure -> image = null
+                is Result.Success -> image = imageConvertor(result.data)
+            }
 
             isLoading = false
         }
