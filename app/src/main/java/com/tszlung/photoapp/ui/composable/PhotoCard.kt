@@ -3,6 +3,7 @@ package com.tszlung.photoapp.ui.composable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -26,10 +27,11 @@ import androidx.compose.ui.unit.dp
 import com.tszlung.photoapp.ui.composable.modifiers.shimmer
 
 @Composable
-fun PhotoCard(imageBitmap: ImageBitmap?, author: String, isShimming: Boolean) {
+fun PhotoCard(imageBitmap: ImageBitmap?, author: String, isShimming: Boolean, onClick: () -> Unit) {
     Card(
         modifier = Modifier
-            .padding(6.dp),
+            .padding(6.dp)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondary
@@ -37,12 +39,14 @@ fun PhotoCard(imageBitmap: ImageBitmap?, author: String, isShimming: Boolean) {
             defaultElevation = 5.dp
         ), border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.tertiary)
     ) {
-        Box(modifier = Modifier
-            .aspectRatio(1f)
-            .shimmer(isShimming)) {
-            if (imageBitmap != null) {
+        Box(
+            modifier = Modifier
+                .aspectRatio(1f)
+                .shimmer(isShimming)
+        ) {
+            imageBitmap?.let {
                 Image(
-                    bitmap = imageBitmap,
+                    bitmap = it,
                     contentDescription = null,
                     modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.FillWidth
