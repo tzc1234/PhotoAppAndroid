@@ -68,6 +68,17 @@ class PhotoDetailViewModelTests {
         assertFalse(sut.isLoading, "Expect not loading after loader failure")
     }
 
+    @Test
+    fun `loadImage delivers null image on loader failure`() = runTest {
+        val (sut, _) = makeSUT(stubs = mutableListOf(Result.Failure(AnyError.ANY)))
+
+        sut.loadImage()
+        assertNull(sut.image)
+
+        advanceUntilIdle()
+        assertNull(sut.image)
+    }
+
     // region Helpers
     private fun makeSUT(
         photo: Photo = makePhoto(0),
@@ -97,6 +108,9 @@ class PhotoDetailViewModel(private val photo: Photo, private val loader: ImageDa
     val webURL: URL
         get() = photo.webURL
     var isLoading by mutableStateOf(false)
+        private set
+    var image by mutableStateOf(null)
+        private set
 
     fun loadImage() {
         isLoading = true
