@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
                         TopAppBar(
                             title = {
                                 val title = currentDestination?.let {
-                                    with(currentDestination) {
+                                    with(it) {
                                         when {
                                             contains("PhotoGridNav") -> "Photos"
                                             contains("PhotoDetailNav") -> "Photo Detail"
@@ -151,7 +151,7 @@ class MainActivity : ComponentActivity() {
                                 factory = object : ViewModelProvider.Factory {
                                     @Suppress("UNCHECKED_CAST")
                                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                        return PhotoDetailViewModel<ImageBitmap>(
+                                        return PhotoDetailViewModel(
                                             Photo(
                                                 nav.id,
                                                 nav.author,
