@@ -24,13 +24,20 @@ class PhotosViewModel(private val loader: PageablePhotosLoader) : ViewModel() {
         const val ERROR_MESSAGE = "Error occurred, please try again."
     }
 
-    fun loadPhotos() {
+    fun loadPhotos(page: Int = 1) {
         isLoading = true
         viewModelScope.launch {
-            when (val result = loader.loadPhotos(1)) {
+            when (val result = loader.loadPhotos(page)) {
                 is Result.Failure -> errorMessage = ERROR_MESSAGE
                 is Result.Success -> {
-                    pageablePhotos = Pageable(result.data, null)
+                    val newPhotos = result.data
+                    val allPhotos = pageablePhotos.value + newPhotos
+                    pageablePhotos = Pageable(
+                        value = allPhotos,
+                        loadMore = if (allPhotos.isEmpty()) null else {
+                            { loadPhotos(page + 1) }
+                        }
+                    )
                     errorMessage = null
                 }
             }

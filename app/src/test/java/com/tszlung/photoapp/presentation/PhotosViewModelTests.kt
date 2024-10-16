@@ -19,7 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class PhotosViewModelTests {
     @Test
     fun `init view model successfully`() {
-        val sut = makeSUT()
+        val (sut, _) = makeSUT()
 
         assertFalse(sut.isLoading)
         assertTrue(sut.pageablePhotos.value.isEmpty())
@@ -29,7 +29,7 @@ class PhotosViewModelTests {
 
     @Test
     fun `load photos delivers isLoading correctly on loader success`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Success(listOf())))
+        val (sut, _) = makeSUT(mutableListOf(Result.Success(listOf())))
 
         sut.loadPhotos()
         assertTrue(sut.isLoading)
@@ -40,7 +40,7 @@ class PhotosViewModelTests {
 
     @Test
     fun `load photos delivers isLoading correctly on loader failure`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Success(listOf())))
+        val (sut, _) = makeSUT(mutableListOf(Result.Success(listOf())))
 
         sut.loadPhotos()
         assertTrue(sut.isLoading)
@@ -51,7 +51,12 @@ class PhotosViewModelTests {
 
     @Test
     fun `load photos delivers error message when received error from loader`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Failure(AnyError.ANY), Result.Success(listOf())))
+        val (sut, _) = makeSUT(
+            mutableListOf(
+                Result.Failure(AnyError.ANY),
+                Result.Success(listOf())
+            )
+        )
 
         sut.loadPhotos()
         assertNull(sut.errorMessage)
@@ -66,7 +71,7 @@ class PhotosViewModelTests {
 
     @Test
     fun `set error message to null after resetErrorMessage`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
+        val (sut, _) = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
 
         sut.loadPhotos()
         advanceUntilIdle()
@@ -78,7 +83,7 @@ class PhotosViewModelTests {
 
     @Test
     fun `load photos delivers empty photos when received empty photos from loader`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Success(listOf())))
+        val (sut, _) = makeSUT(mutableListOf(Result.Success(listOf())))
 
         sut.loadPhotos()
         assertTrue(sut.pageablePhotos.value.isEmpty())
@@ -90,7 +95,7 @@ class PhotosViewModelTests {
     @Test
     fun `load photos delivers photos when received photos from loader`() = runTest {
         val photos = listOf(makePhoto(0), makePhoto(1), makePhoto(2))
-        val sut = makeSUT(mutableListOf(Result.Success(photos)))
+        val (sut, _) = makeSUT(mutableListOf(Result.Success(photos)))
 
         sut.loadPhotos()
         assertTrue(sut.pageablePhotos.value.isEmpty())
@@ -100,23 +105,39 @@ class PhotosViewModelTests {
     }
 
     @Test
-    fun `load photos does not change previously loaded photos after an error from loader`() = runTest {
-        val photos = listOf(makePhoto(0))
-        val sut = makeSUT(mutableListOf(Result.Success(photos), Result.Failure(AnyError.ANY)))
+    fun `load photos does not change previously loaded photos after an error from loader`() =
+        runTest {
+            val photos = listOf(makePhoto(0))
+            val (sut, _) = makeSUT(
+                mutableListOf(
+                    Result.Success(photos),
+                    Result.Failure(AnyError.ANY)
+                )
+            )
+
+            sut.loadPhotos()
+            advanceUntilIdle()
+            assertEquals(photos, sut.pageablePhotos.value)
+
+            sut.loadPhotos()
+            advanceUntilIdle()
+            assertEquals(photos, sut.pageablePhotos.value)
+        }
+
+    @Test
+    fun `loadPhotos does not delivers loadMore on loader error`() = runTest {
+        val (sut, _) = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
 
         sut.loadPhotos()
         advanceUntilIdle()
-        assertEquals(photos, sut.pageablePhotos.value)
 
-        sut.loadPhotos()
-        advanceUntilIdle()
-        assertEquals(photos, sut.pageablePhotos.value)
+        assertNull(sut.pageablePhotos.loadMore)
     }
 
     @Test
     fun `loadPhotos does not delivers loadMore when received empty photos from loader`() = runTest {
         val emptyPhoto = listOf<Photo>()
-        val sut = makeSUT(mutableListOf(Result.Success(emptyPhoto)))
+        val (sut, _) = makeSUT(mutableListOf(Result.Success(emptyPhoto)))
 
         sut.loadPhotos()
         advanceUntilIdle()
@@ -125,24 +146,43 @@ class PhotosViewModelTests {
     }
 
     @Test
-    fun `loadPhotos does not delivers loadMore on loader error`() = runTest {
-        val sut = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
+    fun `loadPhotos delivers loadMore when received photos from loader`() = runTest {
+        val firstPhotos = listOf(makePhoto(0))
+        val secondPhotos = listOf(makePhoto(1))
+        val (sut, loader) = makeSUT(
+            mutableListOf(
+                Result.Success(firstPhotos),
+                Result.Success(secondPhotos)
+            )
+        )
 
         sut.loadPhotos()
         advanceUntilIdle()
 
-        assertNull(sut.pageablePhotos.loadMore)
+        val loadMore = sut.pageablePhotos.loadMore
+        assertNotNull(loadMore)
+        assertEquals(firstPhotos, sut.pageablePhotos.value)
+
+        loadMore?.invoke()
+        advanceUntilIdle()
+
+        assertEquals(listOf(1, 2), loader.loggedPages)
+        assertEquals(firstPhotos + secondPhotos, sut.pageablePhotos.value)
     }
 
     // region Helpers
-    private fun makeSUT(stubs: MutableList<Result<List<Photo>, Error>> = mutableListOf()): PhotosViewModel {
-        val photosLoader = PhotosLoaderStub(stubs)
-        return PhotosViewModel(photosLoader)
+    private fun makeSUT(stubs: MutableList<Result<List<Photo>, Error>> = mutableListOf()): Pair<PhotosViewModel, PhotosLoaderSpy> {
+        val photosLoader = PhotosLoaderSpy(stubs)
+        val sut = PhotosViewModel(photosLoader)
+        return Pair(sut, photosLoader)
     }
 
-    private class PhotosLoaderStub(private val stubs: MutableList<Result<List<Photo>, Error>>) :
+    private class PhotosLoaderSpy(private val stubs: MutableList<Result<List<Photo>, Error>>) :
         PageablePhotosLoader {
+        val loggedPages = mutableListOf<Int>()
+
         override suspend fun loadPhotos(page: Int): Result<List<Photo>, Error> {
+            loggedPages.add(page)
             return stubs.removeFirst()
         }
     }
