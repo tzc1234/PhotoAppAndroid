@@ -10,13 +10,18 @@ import java.net.URL
 class LoadMorePhotosBuilderTests {
     @Test
     fun `does not notify loader upon creation`() {
-        val loadPhotos = LoadPhotosSpy()
-        val sut = LoadMorePhotosBuilder(loadPhotos::load)
+        val (_, loadPhotos) = makeSUT()
 
         assertTrue(loadPhotos.requestURL.isEmpty())
     }
 
     // region Helpers
+    private fun makeSUT(): Pair<LoadMorePhotosBuilder, LoadPhotosSpy> {
+        val loadPhotos = LoadPhotosSpy()
+        val sut = LoadMorePhotosBuilder(loadPhotos::load)
+        return Pair(sut, loadPhotos)
+    }
+
     private class LoadPhotosSpy(val stub: Result<List<Photo>, Error> = Result.Failure(AnyError.ANY)) {
         val requestURL = mutableListOf<URL>()
 
