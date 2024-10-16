@@ -5,9 +5,6 @@ import com.tszlung.photoapp.helpers.AnyError
 import com.tszlung.photoapp.helpers.anyURL
 import com.tszlung.photoapp.helpers.makePhoto
 import com.tszlung.photoapp.util.*
-import io.ktor.http.Parameters
-import io.ktor.http.URLBuilder
-import io.ktor.http.URLProtocol
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlinx.coroutines.test.runTest
@@ -78,32 +75,4 @@ class PageablePhotosLoaderAdapterTests {
         }
     }
     // endregion
-}
-
-interface PageablePhotosLoader {
-    suspend fun loadPhotos(page: Int): Result<List<Photo>, Error>
-}
-
-class PageablePhotosLoaderAdapter(
-    private val baseURL: URL,
-    private val loadPhotos: suspend (URL) -> Result<List<Photo>, Error>
-) : PageablePhotosLoader {
-    override suspend fun loadPhotos(page: Int): Result<List<Photo>, Error> {
-        return loadPhotos(makeURL(page))
-    }
-
-    private fun makeURL(page: Int): URL {
-        val path = if (!baseURL.path.isEmpty() && baseURL.path.first() == '/') {
-            baseURL.path.drop(1)
-        } else {
-            baseURL.path
-        }
-        val urlBuilder = URLBuilder(
-            protocol = URLProtocol(name = baseURL.protocol, defaultPort = baseURL.port),
-            host = baseURL.host,
-            pathSegments = listOf(path),
-            parameters = Parameters.build { append("page", page.toString()) }
-        )
-        return URL(urlBuilder.buildString())
-    }
 }
