@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import kotlinx.coroutines.test.runTest
 import java.net.URL
 
-class LoadMorePhotosBuilderTests {
+class PageablePhotosLoaderAdapterTests {
     @Test
     fun `does not notify loadPhotos upon creation`() {
         val (_, loadPhotos) = makeSUT()
@@ -62,9 +62,9 @@ class LoadMorePhotosBuilderTests {
     private fun makeSUT(
         baseURL: URL = anyURL(),
         stub: Result<List<Photo>, Error> = Result.Failure(AnyError.ANY)
-    ): Pair<LoadMorePhotosBuilder, LoadPhotosSpy> {
+    ): Pair<PageablePhotosLoaderAdapter, LoadPhotosSpy> {
         val loadPhotos = LoadPhotosSpy(stub)
-        val sut = LoadMorePhotosBuilder(baseURL, loadPhotos::load)
+        val sut = PageablePhotosLoaderAdapter(baseURL, loadPhotos::load)
         return Pair(sut, loadPhotos)
     }
 
@@ -79,7 +79,7 @@ class LoadMorePhotosBuilderTests {
     // endregion
 }
 
-class LoadMorePhotosBuilder(
+class PageablePhotosLoaderAdapter(
     private val baseURL: URL,
     private val loadPhotos: suspend (URL) -> Result<List<Photo>, Error>
 ) {
