@@ -23,7 +23,7 @@ fun PhotosScreen(
         isRefreshing = photosViewModel.isLoading,
         onRefresh = photosViewModel::loadPhotos,
         modifier = modifier,
-        photos = photosViewModel.photos,
+        photos = photosViewModel.pageablePhotos.value,
     ) { photo ->
         val photoImageViewModel = photoImageViewModel(photo)
 

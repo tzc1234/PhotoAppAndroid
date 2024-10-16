@@ -22,7 +22,8 @@ class PhotosViewModelTests {
         val sut = makeSUT()
 
         assertFalse(sut.isLoading)
-        assertTrue(sut.photos.isEmpty())
+        assertTrue(sut.pageablePhotos.value.isEmpty())
+        assertNull(sut.pageablePhotos.loadMore)
         assertNull(sut.errorMessage)
     }
 
@@ -80,10 +81,10 @@ class PhotosViewModelTests {
         val sut = makeSUT(mutableListOf(Result.Success(listOf())))
 
         sut.loadPhotos()
-        assertTrue(sut.photos.isEmpty())
+        assertTrue(sut.pageablePhotos.value.isEmpty())
 
         advanceUntilIdle()
-        assertTrue(sut.photos.isEmpty())
+        assertTrue(sut.pageablePhotos.value.isEmpty())
     }
 
     @Test
@@ -92,10 +93,10 @@ class PhotosViewModelTests {
         val sut = makeSUT(mutableListOf(Result.Success(photos)))
 
         sut.loadPhotos()
-        assertTrue(sut.photos.isEmpty())
+        assertTrue(sut.pageablePhotos.value.isEmpty())
 
         advanceUntilIdle()
-        assertEquals(photos, sut.photos)
+        assertEquals(photos, sut.pageablePhotos.value)
     }
 
     @Test
@@ -105,11 +106,11 @@ class PhotosViewModelTests {
 
         sut.loadPhotos()
         advanceUntilIdle()
-        assertEquals(photos, sut.photos)
+        assertEquals(photos, sut.pageablePhotos.value)
 
         sut.loadPhotos()
         advanceUntilIdle()
-        assertEquals(photos, sut.photos)
+        assertEquals(photos, sut.pageablePhotos.value)
     }
 
     // region Helpers
