@@ -22,8 +22,8 @@ class PhotosViewModelTests {
         val (sut, _) = makeSUT()
 
         assertFalse(sut.isLoading)
-        assertTrue(sut.pageablePhotos.value.isEmpty())
-        assertNull(sut.pageablePhotos.loadMore)
+        assertTrue(sut.paginatedPhotos.value.isEmpty())
+        assertNull(sut.paginatedPhotos.loadMore)
         assertNull(sut.errorMessage)
     }
 
@@ -86,10 +86,10 @@ class PhotosViewModelTests {
         val (sut, _) = makeSUT(mutableListOf(Result.Success(listOf())))
 
         sut.loadPhotos()
-        assertTrue(sut.pageablePhotos.value.isEmpty())
+        assertTrue(sut.paginatedPhotos.value.isEmpty())
 
         advanceUntilIdle()
-        assertTrue(sut.pageablePhotos.value.isEmpty())
+        assertTrue(sut.paginatedPhotos.value.isEmpty())
     }
 
     @Test
@@ -98,10 +98,10 @@ class PhotosViewModelTests {
         val (sut, _) = makeSUT(mutableListOf(Result.Success(photos)))
 
         sut.loadPhotos()
-        assertTrue(sut.pageablePhotos.value.isEmpty())
+        assertTrue(sut.paginatedPhotos.value.isEmpty())
 
         advanceUntilIdle()
-        assertEquals(photos, sut.pageablePhotos.value)
+        assertEquals(photos, sut.paginatedPhotos.value)
     }
 
     @Test
@@ -117,11 +117,11 @@ class PhotosViewModelTests {
 
             sut.loadPhotos()
             advanceUntilIdle()
-            assertEquals(photos, sut.pageablePhotos.value)
+            assertEquals(photos, sut.paginatedPhotos.value)
 
             sut.loadPhotos()
             advanceUntilIdle()
-            assertEquals(photos, sut.pageablePhotos.value)
+            assertEquals(photos, sut.paginatedPhotos.value)
         }
 
     @Test
@@ -131,7 +131,7 @@ class PhotosViewModelTests {
         sut.loadPhotos()
         advanceUntilIdle()
 
-        assertNull(sut.pageablePhotos.loadMore)
+        assertNull(sut.paginatedPhotos.loadMore)
     }
 
     @Test
@@ -148,11 +148,11 @@ class PhotosViewModelTests {
         sut.loadPhotos()
         advanceUntilIdle()
 
-        val loadMore = sut.pageablePhotos.loadMore
+        val loadMore = sut.paginatedPhotos.loadMore
         loadMore?.invoke()
         advanceUntilIdle()
 
-        assertNull(sut.pageablePhotos.loadMore)
+        assertNull(sut.paginatedPhotos.loadMore)
     }
 
     @Test
@@ -169,15 +169,15 @@ class PhotosViewModelTests {
         sut.loadPhotos()
         advanceUntilIdle()
 
-        val loadMore = sut.pageablePhotos.loadMore
+        val loadMore = sut.paginatedPhotos.loadMore
         assertNotNull(loadMore)
-        assertEquals(firstPhotos, sut.pageablePhotos.value)
+        assertEquals(firstPhotos, sut.paginatedPhotos.value)
 
         loadMore?.invoke()
         advanceUntilIdle()
 
         assertEquals(listOf(1, 2), loader.loggedPages)
-        assertEquals(firstPhotos + lastPhotos, sut.pageablePhotos.value)
+        assertEquals(firstPhotos + lastPhotos, sut.paginatedPhotos.value)
     }
 
     @Test
@@ -194,15 +194,15 @@ class PhotosViewModelTests {
 
         sut.loadPhotos()
         advanceUntilIdle()
-        sut.pageablePhotos.loadMore?.invoke()
+        sut.paginatedPhotos.loadMore?.invoke()
         advanceUntilIdle()
 
-        assertEquals(initialPhotos + additionalPhotos, sut.pageablePhotos.value)
+        assertEquals(initialPhotos + additionalPhotos, sut.paginatedPhotos.value)
 
         sut.loadPhotos()
         advanceUntilIdle()
 
-        assertEquals(initialPhotos, sut.pageablePhotos.value)
+        assertEquals(initialPhotos, sut.paginatedPhotos.value)
     }
 
     // region Helpers

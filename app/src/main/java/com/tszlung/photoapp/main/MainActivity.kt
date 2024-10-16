@@ -50,7 +50,7 @@ import com.tszlung.photoapp.main.nav.PhotoDetailNav
 import com.tszlung.photoapp.main.nav.PhotoGridNav
 import com.tszlung.photoapp.main.screens.PhotoDetailScreen
 import com.tszlung.photoapp.main.screens.PhotosScreen
-import com.tszlung.photoapp.presentation.util.Pageable
+import com.tszlung.photoapp.presentation.util.Paginated
 import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -197,7 +197,7 @@ fun DefaultPreview() {
                 isRefreshing = false,
                 onRefresh = {},
                 modifier = Modifier.padding(innerPadding),
-                pageablePhotos = Pageable<List<Photo>>(photos, null),
+                paginatedPhotos = Paginated<List<Photo>>(photos, null),
             ) { photo ->
                 PhotoCard(makeImageBitmap(), photo.author, false) {}
             }

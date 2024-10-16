@@ -12,7 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.tszlung.photoapp.features.Photo
-import com.tszlung.photoapp.presentation.util.Pageable
+import com.tszlung.photoapp.presentation.util.Paginated
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,7 +20,7 @@ fun PhotosGrid(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
-    pageablePhotos:  Pageable<List<Photo>>,
+    paginatedPhotos:  Paginated<List<Photo>>,
     item: @Composable (Photo) -> Unit
 ) {
     PullToRefreshBox(isRefreshing = isRefreshing, onRefresh = onRefresh, modifier = modifier) {
@@ -29,9 +29,9 @@ fun PhotosGrid(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(8.dp),
         ) {
-            val photoCount = pageablePhotos.value.count()
-            val loadMore = pageablePhotos.loadMore
-            itemsIndexed(pageablePhotos.value) { index, photo ->
+            val photoCount = paginatedPhotos.value.count()
+            val loadMore = paginatedPhotos.loadMore
+            itemsIndexed(paginatedPhotos.value) { index, photo ->
                 if (loadMore != null && index >= photoCount - 1) {
                     LaunchedEffect(key1 = index) {
                         loadMore()

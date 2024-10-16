@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tszlung.photoapp.features.Photo
-import com.tszlung.photoapp.presentation.util.Pageable
+import com.tszlung.photoapp.presentation.util.Paginated
 import com.tszlung.photoapp.presentation.util.PageablePhotosLoader
 import com.tszlung.photoapp.util.*
 import kotlinx.coroutines.delay
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class PhotosViewModel(private val loader: PageablePhotosLoader) : ViewModel() {
     var isLoading by mutableStateOf(false)
         private set
-    var pageablePhotos by mutableStateOf<Pageable<List<Photo>>>(Pageable(listOf(), null))
+    var paginatedPhotos by mutableStateOf<Paginated<List<Photo>>>(Paginated(listOf(), null))
         private set
     var errorMessage by mutableStateOf<String?>(null)
         private set
@@ -31,8 +31,8 @@ class PhotosViewModel(private val loader: PageablePhotosLoader) : ViewModel() {
                 is Result.Failure -> errorMessage = ERROR_MESSAGE
                 is Result.Success -> {
                     val newPhotos = result.data
-                    val allPhotos = if (page == 1) newPhotos else pageablePhotos.value + newPhotos
-                    pageablePhotos = Pageable(
+                    val allPhotos = if (page == 1) newPhotos else paginatedPhotos.value + newPhotos
+                    paginatedPhotos = Paginated(
                         value = allPhotos,
                         loadMore = if (newPhotos.isEmpty()) null else {
                             { loadPhotos(page + 1) }
