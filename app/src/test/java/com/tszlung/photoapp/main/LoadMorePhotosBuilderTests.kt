@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlinx.coroutines.test.runTest
 import java.net.URL
+import java.net.URLDecoder
 
 class PageablePhotosLoaderAdapterTests {
     @Test
@@ -22,38 +23,38 @@ class PageablePhotosLoaderAdapterTests {
     }
 
     @Test
-    fun `build delivers loadMorePhotos requests url on loadPhotos`() = runTest {
+    fun `requests url on loadPhotos`() = runTest {
         val baseURL = URL("https://base-url.com/v1/list")
         val (sut, loadPhotos) = makeSUT(baseURL)
         val page = 2
 
-        val loadMorePhotos = sut.build(page)
-        loadMorePhotos()
+        sut.loadPhotos(page)
+        val decodedURLs = loadPhotos.requestURL.map {
+            URL(URLDecoder.decode(it.toString(), Charsets.UTF_8))
+        }
 
         assertEquals(
-            listOf(URL("https://base-url.com/%2Fv1%2Flist?page=$page")),
-            loadPhotos.requestURL
+            listOf(URL("https://base-url.com/v1/list?page=$page")),
+            decodedURLs
         )
     }
 
     @Test
-    fun `loadMorePhotos delivers error on loadPhotos failure`() = runTest {
+    fun `delivers error on loadPhotos failure`() = runTest {
         val expectedResult = Result.Failure<List<Photo>, Error>(AnyError.ANY)
         val (sut, _) = makeSUT(stub = expectedResult)
 
-        val loadMorePhotos = sut.build(1)
-        val result = loadMorePhotos()
+        val result = sut.loadPhotos(1)
 
         assertEquals(expectedResult, result)
     }
 
     @Test
-    fun `loadMorePhotos delivers photos on loadPhotos success`() = runTest {
+    fun `delivers photos on loadPhotos success`() = runTest {
         val expectedResult = Result.Success<List<Photo>, Error>(listOf(makePhoto(0), makePhoto(1)))
         val (sut, _) = makeSUT(stub = expectedResult)
 
-        val loadMorePhotos = sut.build(1)
-        val result = loadMorePhotos()
+        val result = sut.loadPhotos(1)
 
         assertEquals(expectedResult, result)
     }
@@ -68,7 +69,7 @@ class PageablePhotosLoaderAdapterTests {
         return Pair(sut, loadPhotos)
     }
 
-    private class LoadPhotosSpy(val stub: Result<List<Photo>, Error>) {
+    private class LoadPhotosSpy(private val stub: Result<List<Photo>, Error>) {
         val requestURL = mutableListOf<URL>()
 
         fun load(url: URL): Result<List<Photo>, Error> {
@@ -83,21 +84,20 @@ class PageablePhotosLoaderAdapter(
     private val baseURL: URL,
     private val loadPhotos: suspend (URL) -> Result<List<Photo>, Error>
 ) {
-    fun build(page: Int): suspend () -> Result<List<Photo>, Error> {
-        val urlBuilder = URLBuilder(
-            protocol = URLProtocol(name = baseURL.protocol, defaultPort = baseURL.port),
-            host = baseURL.host,
-            pathSegments = listOf(baseURL.path),
-            parameters = Parameters.build { append("page", page.toString()) }
-        )
-        return { loadPhotos(makeURL(page)) }
+    suspend fun loadPhotos(page: Int): Result<List<Photo>, Error> {
+        return loadPhotos(makeURL(page))
     }
 
     private fun makeURL(page: Int): URL {
+        val path = if (!baseURL.path.isEmpty() && baseURL.path.first() == '/') {
+            baseURL.path.drop(1)
+        } else {
+            baseURL.path
+        }
         val urlBuilder = URLBuilder(
             protocol = URLProtocol(name = baseURL.protocol, defaultPort = baseURL.port),
             host = baseURL.host,
-            pathSegments = listOf(baseURL.path),
+            pathSegments = listOf(path),
             parameters = Parameters.build { append("page", page.toString()) }
         )
         return URL(urlBuilder.buildString())
