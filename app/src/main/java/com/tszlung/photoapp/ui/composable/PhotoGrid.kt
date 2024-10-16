@@ -33,7 +33,7 @@ fun PhotosGrid(
             val loadMore = pageablePhotos.loadMore
             itemsIndexed(pageablePhotos.value) { index, photo ->
                 if (loadMore != null && index >= photoCount - 1) {
-                    LaunchedEffect(key1 = Unit) {
+                    LaunchedEffect(key1 = index) {
                         loadMore()
                     }
                 }

@@ -31,7 +31,7 @@ class PhotosViewModel(private val loader: PageablePhotosLoader) : ViewModel() {
                 is Result.Failure -> errorMessage = ERROR_MESSAGE
                 is Result.Success -> {
                     val newPhotos = result.data
-                    val allPhotos = pageablePhotos.value + newPhotos
+                    val allPhotos = if (page == 1) newPhotos else pageablePhotos.value + newPhotos
                     pageablePhotos = Pageable(
                         value = allPhotos,
                         loadMore = if (newPhotos.isEmpty()) null else {

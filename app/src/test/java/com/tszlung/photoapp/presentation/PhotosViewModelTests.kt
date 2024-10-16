@@ -180,6 +180,31 @@ class PhotosViewModelTests {
         assertEquals(firstPhotos + lastPhotos, sut.pageablePhotos.value)
     }
 
+    @Test
+    fun `reloads photos delivers initial photos from loader`() = runTest {
+        val initialPhotos = listOf(makePhoto(0))
+        val additionalPhotos = listOf(makePhoto(1))
+        val (sut, _) = makeSUT(
+            mutableListOf(
+                Result.Success(initialPhotos),
+                Result.Success(additionalPhotos),
+                Result.Success(initialPhotos)
+            )
+        )
+
+        sut.loadPhotos()
+        advanceUntilIdle()
+        sut.pageablePhotos.loadMore?.invoke()
+        advanceUntilIdle()
+
+        assertEquals(initialPhotos + additionalPhotos, sut.pageablePhotos.value)
+
+        sut.loadPhotos()
+        advanceUntilIdle()
+
+        assertEquals(initialPhotos, sut.pageablePhotos.value)
+    }
+
     // region Helpers
     private fun makeSUT(stubs: MutableList<Result<List<Photo>, Error>> = mutableListOf()): Pair<PhotosViewModel, PhotosLoaderSpy> {
         val photosLoader = PhotosLoaderSpy(stubs)
