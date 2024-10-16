@@ -35,14 +35,28 @@ class LoadMorePhotosBuilderTests {
         )
     }
 
+    @Test
+    fun `loadMorePhotos delivers error on loadPhotos failure`() = runTest {
+        val expectedResult = Result.Failure<List<Photo>, Error>(AnyError.ANY)
+        val (sut, _) = makeSUT(stub = expectedResult)
+
+        val loadMorePhotos = sut.build(1)
+        val result = loadMorePhotos()
+
+        assertEquals(expectedResult, result)
+    }
+
     // region Helpers
-    private fun makeSUT(baseURL: URL = anyURL()): Pair<LoadMorePhotosBuilder, LoadPhotosSpy> {
-        val loadPhotos = LoadPhotosSpy()
+    private fun makeSUT(
+        baseURL: URL = anyURL(),
+        stub: Result<List<Photo>, Error> = Result.Failure(AnyError.ANY)
+    ): Pair<LoadMorePhotosBuilder, LoadPhotosSpy> {
+        val loadPhotos = LoadPhotosSpy(stub)
         val sut = LoadMorePhotosBuilder(baseURL, loadPhotos::load)
         return Pair(sut, loadPhotos)
     }
 
-    private class LoadPhotosSpy(val stub: Result<List<Photo>, Error> = Result.Failure(AnyError.ANY)) {
+    private class LoadPhotosSpy(val stub: Result<List<Photo>, Error>) {
         val requestURL = mutableListOf<URL>()
 
         fun load(url: URL): Result<List<Photo>, Error> {
@@ -57,7 +71,7 @@ class LoadMorePhotosBuilder(
     private val baseURL: URL,
     private val loadPhotos: suspend (URL) -> Result<List<Photo>, Error>
 ) {
-    fun build(page: Int): suspend () -> Unit {
+    fun build(page: Int): suspend () -> Result<List<Photo>, Error> {
         val urlBuilder = URLBuilder(
             protocol = URLProtocol(name = baseURL.protocol, defaultPort = baseURL.port),
             host = baseURL.host,
