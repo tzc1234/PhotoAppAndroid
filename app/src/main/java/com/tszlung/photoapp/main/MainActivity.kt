@@ -50,6 +50,7 @@ import com.tszlung.photoapp.main.nav.PhotoDetailNav
 import com.tszlung.photoapp.main.nav.PhotoGridNav
 import com.tszlung.photoapp.main.screens.PhotoDetailScreen
 import com.tszlung.photoapp.main.screens.PhotosScreen
+import com.tszlung.photoapp.presentation.util.Pageable
 import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -191,11 +192,12 @@ fun DefaultPreview() {
             modifier = Modifier.fillMaxSize(),
             topBar = { TopAppBar(title = { Text("Photos") }) }
         ) { innerPadding ->
+            val photos = listOf(makePhoto(0), makePhoto(1), makePhoto(2))
             PhotosGrid(
                 isRefreshing = false,
                 onRefresh = {},
                 modifier = Modifier.padding(innerPadding),
-                photos = listOf(makePhoto(0), makePhoto(1), makePhoto(2)),
+                pageablePhotos = Pageable<List<Photo>>(photos, null),
             ) { photo ->
                 PhotoCard(makeImageBitmap(), photo.author, false) {}
             }
