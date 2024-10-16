@@ -136,10 +136,20 @@ class PhotosViewModelTests {
 
     @Test
     fun `loadPhotos does not delivers loadMore when received empty photos from loader`() = runTest {
-        val emptyPhoto = listOf<Photo>()
-        val (sut, _) = makeSUT(mutableListOf(Result.Success(emptyPhoto)))
+        val firstPhotos = listOf(makePhoto(0))
+        val lastEmptyPhoto = listOf<Photo>()
+        val (sut, _) = makeSUT(
+            mutableListOf(
+                Result.Success(firstPhotos),
+                Result.Success(lastEmptyPhoto)
+            )
+        )
 
         sut.loadPhotos()
+        advanceUntilIdle()
+
+        val loadMore = sut.pageablePhotos.loadMore
+        loadMore?.invoke()
         advanceUntilIdle()
 
         assertNull(sut.pageablePhotos.loadMore)
@@ -148,11 +158,11 @@ class PhotosViewModelTests {
     @Test
     fun `loadPhotos delivers loadMore when received photos from loader`() = runTest {
         val firstPhotos = listOf(makePhoto(0))
-        val secondPhotos = listOf(makePhoto(1))
+        val lastPhotos = listOf(makePhoto(1))
         val (sut, loader) = makeSUT(
             mutableListOf(
                 Result.Success(firstPhotos),
-                Result.Success(secondPhotos)
+                Result.Success(lastPhotos)
             )
         )
 
@@ -167,7 +177,7 @@ class PhotosViewModelTests {
         advanceUntilIdle()
 
         assertEquals(listOf(1, 2), loader.loggedPages)
-        assertEquals(firstPhotos + secondPhotos, sut.pageablePhotos.value)
+        assertEquals(firstPhotos + lastPhotos, sut.pageablePhotos.value)
     }
 
     // region Helpers

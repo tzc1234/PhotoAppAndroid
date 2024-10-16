@@ -34,7 +34,7 @@ class PhotosViewModel(private val loader: PageablePhotosLoader) : ViewModel() {
                     val allPhotos = pageablePhotos.value + newPhotos
                     pageablePhotos = Pageable(
                         value = allPhotos,
-                        loadMore = if (allPhotos.isEmpty()) null else {
+                        loadMore = if (newPhotos.isEmpty()) null else {
                             { loadPhotos(page + 1) }
                         }
                     )
