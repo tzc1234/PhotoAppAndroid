@@ -124,6 +124,16 @@ class PhotosViewModelTests {
         assertNull(sut.pageablePhotos.loadMore)
     }
 
+    @Test
+    fun `loadPhotos does not delivers loadMore on loader error`() = runTest {
+        val sut = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
+
+        sut.loadPhotos()
+        advanceUntilIdle()
+
+        assertNull(sut.pageablePhotos.loadMore)
+    }
+
     // region Helpers
     private fun makeSUT(stubs: MutableList<Result<List<Photo>, Error>> = mutableListOf()): PhotosViewModel {
         val photosLoader = PhotosLoaderStub(stubs)
