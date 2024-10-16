@@ -12,7 +12,8 @@ fun PhotoDetailScreen(
     modifier: Modifier,
     photoDetailViewModel: PhotoDetailViewModel<ImageBitmap>
 ) {
-    LaunchedEffect(key1 = Unit) {
+    val photoId = photoDetailViewModel.photo.id
+    LaunchedEffect(key1 = photoId) {
         photoDetailViewModel.loadImage()
     }
 

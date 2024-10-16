@@ -27,8 +27,8 @@ fun PhotosScreen(
     ) { photo ->
         val photoImageViewModel = photoImageViewModel(photo)
 
-        LaunchedEffect(key1 = Unit) {
-            photoImageViewModel.loadImageData()
+        LaunchedEffect(key1 = photo.id) {
+            photoImageViewModel.loadImage()
         }
 
         PhotoCard(

@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
                         TopAppBar(
                             title = {
                                 val title = currentDestination?.let {
-                                    with(currentDestination) {
+                                    with(it) {
                                         when {
                                             contains("PhotoGridNav") -> "Photos"
                                             contains("PhotoDetailNav") -> "Photo Detail"
@@ -111,7 +111,7 @@ class MainActivity : ComponentActivity() {
                                 title?.let { Text(it) }
                             },
                             navigationIcon = {
-                                if (currentDestination?.contains("PhotoGridNav") == false) {
+                                if (!(currentDestination ?: "").contains("PhotoGridNav")) {
                                     IconButton(onClick = { navController.navigateUp() }) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -135,7 +135,7 @@ class MainActivity : ComponentActivity() {
                                     factory = object : ViewModelProvider.Factory {
                                         @Suppress("UNCHECKED_CAST")
                                         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                            return PhotoImageViewModel<ImageBitmap>(
+                                            return PhotoImageViewModel(
                                                 imageDataLoaderWithFallback,
                                                 makePhotoURL(photo.id)
                                             ) { imageConverter(it) } as T
@@ -151,15 +151,8 @@ class MainActivity : ComponentActivity() {
                                 factory = object : ViewModelProvider.Factory {
                                     @Suppress("UNCHECKED_CAST")
                                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                                        return PhotoDetailViewModel<ImageBitmap>(
-                                            Photo(
-                                                nav.id,
-                                                nav.author,
-                                                nav.width,
-                                                nav.height,
-                                                URL(nav.webURL),
-                                                URL(nav.imageURL)
-                                            ),
+                                        return PhotoDetailViewModel(
+                                            photo = nav.toPhoto(),
                                             loader = imageDataLoaderWithFallback
                                         ) { imageConverter(it) } as T
                                     }

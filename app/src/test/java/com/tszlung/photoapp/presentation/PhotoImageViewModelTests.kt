@@ -26,10 +26,10 @@ class PhotoImageViewModelTests {
     }
 
     @Test
-    fun `loadImageData delivers isLoading properly on loader failure`() = runTest {
+    fun `loadImage delivers isLoading properly on loader failure`() = runTest {
         val (sut, _) = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
 
-        sut.loadImageData()
+        sut.loadImage()
         assertTrue(sut.isLoading)
 
         advanceUntilIdle()
@@ -37,10 +37,10 @@ class PhotoImageViewModelTests {
     }
 
     @Test
-    fun `loadImageData delivers isLoading properly on loader success`() = runTest {
+    fun `loadImage delivers isLoading properly on loader success`() = runTest {
         val (sut, _) = makeSUT(mutableListOf(Result.Success(anyData())))
 
-        sut.loadImageData()
+        sut.loadImage()
         assertTrue(sut.isLoading)
 
         advanceUntilIdle()
@@ -48,11 +48,11 @@ class PhotoImageViewModelTests {
     }
 
     @Test
-    fun `loadImageData requests with URL on loader`() = runTest {
+    fun `loadImage requests with URL on loader`() = runTest {
         val url = anyURL()
         val (sut, loader) = makeSUT(mutableListOf(Result.Success(anyData())), url)
 
-        sut.loadImageData()
+        sut.loadImage()
         assertTrue(loader.requestURLs.isEmpty())
 
         advanceUntilIdle()
@@ -60,10 +60,10 @@ class PhotoImageViewModelTests {
     }
 
     @Test
-    fun `loadImageData delivers null image on loader failure`() = runTest {
+    fun `loadImage delivers null image on loader failure`() = runTest {
         val (sut, _) = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
 
-        sut.loadImageData()
+        sut.loadImage()
         assertNull(sut.image)
 
         advanceUntilIdle()
@@ -71,11 +71,11 @@ class PhotoImageViewModelTests {
     }
 
     @Test
-    fun `loadImageData delivers image on loader success`() = runTest {
+    fun `loadImage delivers image on loader success`() = runTest {
         val data = anyData()
         val (sut, _) = makeSUT(mutableListOf(Result.Success(data)))
 
-        sut.loadImageData()
+        sut.loadImage()
         assertNull(sut.image)
 
         advanceUntilIdle()
@@ -83,17 +83,17 @@ class PhotoImageViewModelTests {
     }
 
     @Test
-    fun `loadImageData delivers previous image on loader failure`() = runTest {
+    fun `loadImage delivers previous image on loader failure`() = runTest {
         val data = anyData()
         val (sut, _) = makeSUT(mutableListOf(Result.Success(data), Result.Failure(AnyError.ANY)))
 
-        sut.loadImageData()
+        sut.loadImage()
         assertNull(sut.image)
 
         advanceUntilIdle()
         assertEquals(data, sut.image)
 
-        sut.loadImageData()
+        sut.loadImage()
         advanceUntilIdle()
         assertEquals(data, sut.image)
     }

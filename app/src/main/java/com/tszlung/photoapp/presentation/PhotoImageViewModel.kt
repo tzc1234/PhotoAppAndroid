@@ -20,7 +20,7 @@ class PhotoImageViewModel<I>(
     var isLoading by mutableStateOf(false)
         private set
 
-    fun loadImageData() {
+    fun loadImage() {
         isLoading = true
         viewModelScope.launch {
             when (val result = loader.loadFrom(imageURL)) {
