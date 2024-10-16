@@ -80,11 +80,15 @@ class PageablePhotosLoaderAdapterTests {
     // endregion
 }
 
+interface PageablePhotosLoader {
+    suspend fun loadPhotos(page: Int): Result<List<Photo>, Error>
+}
+
 class PageablePhotosLoaderAdapter(
     private val baseURL: URL,
     private val loadPhotos: suspend (URL) -> Result<List<Photo>, Error>
-) {
-    suspend fun loadPhotos(page: Int): Result<List<Photo>, Error> {
+) : PageablePhotosLoader {
+    override suspend fun loadPhotos(page: Int): Result<List<Photo>, Error> {
         return loadPhotos(makeURL(page))
     }
 
