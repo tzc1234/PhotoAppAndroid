@@ -113,6 +113,17 @@ class PhotosViewModelTests {
         assertEquals(photos, sut.pageablePhotos.value)
     }
 
+    @Test
+    fun `loadPhotos does not delivers loadMore when received empty photos from loader`() = runTest {
+        val emptyPhoto = listOf<Photo>()
+        val sut = makeSUT(mutableListOf(Result.Success(emptyPhoto)))
+
+        sut.loadPhotos()
+        advanceUntilIdle()
+
+        assertNull(sut.pageablePhotos.loadMore)
+    }
+
     // region Helpers
     private fun makeSUT(stubs: MutableList<Result<List<Photo>, Error>> = mutableListOf()): PhotosViewModel {
         val photosLoader = PhotosLoaderStub(stubs)
