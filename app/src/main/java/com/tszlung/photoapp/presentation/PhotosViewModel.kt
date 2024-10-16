@@ -6,12 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tszlung.photoapp.features.Photo
-import com.tszlung.photoapp.features.PhotosLoader
+import com.tszlung.photoapp.presentation.util.PageablePhotosLoader
 import com.tszlung.photoapp.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class PhotosViewModel(private val loader: PhotosLoader) : ViewModel() {
+class PhotosViewModel(private val loader: PageablePhotosLoader) : ViewModel() {
     var isLoading by mutableStateOf(false)
         private set
     var photos by mutableStateOf(listOf<Photo>())
@@ -26,7 +26,7 @@ class PhotosViewModel(private val loader: PhotosLoader) : ViewModel() {
     fun loadPhotos() {
         isLoading = true
         viewModelScope.launch {
-            when (val result = loader.load()) {
+            when (val result = loader.loadPhotos(1)) {
                 is Result.Failure -> errorMessage = ERROR_MESSAGE
                 is Result.Success -> {
                     photos = result.data

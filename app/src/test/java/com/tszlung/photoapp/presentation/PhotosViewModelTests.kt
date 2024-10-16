@@ -1,12 +1,12 @@
 package com.tszlung.photoapp.presentation
 
 import com.tszlung.photoapp.features.Photo
-import com.tszlung.photoapp.features.PhotosLoader
 import com.tszlung.photoapp.helpers.AnyError
 import com.tszlung.photoapp.helpers.makePhoto
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import com.tszlung.photoapp.presentation.helpers.MainCoroutineExtension
+import com.tszlung.photoapp.presentation.util.PageablePhotosLoader
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -119,8 +119,8 @@ class PhotosViewModelTests {
     }
 
     private class PhotosLoaderStub(private val stubs: MutableList<Result<List<Photo>, Error>>) :
-        PhotosLoader {
-        override suspend fun load(): Result<List<Photo>, Error> {
+        PageablePhotosLoader {
+        override suspend fun loadPhotos(page: Int): Result<List<Photo>, Error> {
             return stubs.removeFirst()
         }
     }

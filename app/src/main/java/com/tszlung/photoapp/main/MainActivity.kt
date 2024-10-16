@@ -56,7 +56,9 @@ import java.net.URL
 class MainActivity : ComponentActivity() {
     private val photosURL = URL("https://picsum.photos/v2/list")
     private val client = KtorHTTPClient()
-    private val remotePhotosLoader = RemotePhotosLoader(client, photosURL)
+    private val pageablePhotosLoader = PageablePhotosLoaderAdapter(photosURL) {
+        RemotePhotosLoader(client, it).load()
+    }
     private val remoteImageDataLoader = RemoteImageDataLoader(client)
 
     private val store = LruImageDataStore()
@@ -80,7 +82,7 @@ class MainActivity : ComponentActivity() {
                     factory = object : ViewModelProvider.Factory {
                         @Suppress("UNCHECKED_CAST")
                         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                            return PhotosViewModel(remotePhotosLoader) as T
+                            return PhotosViewModel(pageablePhotosLoader) as T
                         }
                     }
                 )
