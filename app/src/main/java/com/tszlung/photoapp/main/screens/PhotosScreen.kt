@@ -24,6 +24,7 @@ fun PhotosScreen(
         onRefresh = photosViewModel::loadPhotos,
         modifier = modifier,
         photos = photosViewModel.photos,
+        onReachLastItem = photosViewModel.loadMore
     ) { photo ->
         val photoImageViewModel = photoImageViewModel(photo)
 

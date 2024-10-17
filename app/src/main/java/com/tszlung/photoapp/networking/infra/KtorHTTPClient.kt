@@ -6,12 +6,12 @@ import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.android.Android
 import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
 import java.net.URL
 
-class KtorHTTPClient(engine: HttpClientEngine = CIO.create()) : HTTPClient {
+class KtorHTTPClient(engine: HttpClientEngine = Android.create {}) : HTTPClient {
     private val client = HttpClient(engine)
 
     override suspend fun getFrom(url: URL): Result<ByteArray, Error> {
