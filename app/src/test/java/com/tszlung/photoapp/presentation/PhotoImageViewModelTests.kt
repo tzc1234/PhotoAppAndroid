@@ -98,13 +98,24 @@ class PhotoImageViewModelTests {
         assertEquals(data, sut.image)
     }
 
+    @Test
+    fun `delivers should reload after load Image failure`() = runTest {
+        val (sut, _) = makeSUT(mutableListOf(Result.Failure(AnyError.ANY)))
+
+        sut.loadImage()
+        assertFalse(sut.shouldReload)
+
+        advanceUntilIdle()
+        assertTrue(sut.shouldReload)
+    }
+
     // region Helpers
     private fun makeSUT(
         stubs: MutableList<Result<ByteArray, Error>> = mutableListOf(),
         imageURL: URL = anyURL()
     ): Pair<PhotoImageViewModel<ByteArray>, ImageDataLoaderSpy> {
         val imageDataLoader = ImageDataLoaderSpy(stubs)
-        val sut = PhotoImageViewModel<ByteArray>(imageDataLoader, imageURL, { it })
+        val sut = PhotoImageViewModel<ByteArray>(imageDataLoader, imageURL) { it }
         return Pair(sut, imageDataLoader)
     }
 

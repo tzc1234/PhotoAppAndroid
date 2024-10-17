@@ -19,12 +19,13 @@ class PhotoImageViewModel<I>(
         private set
     var isLoading by mutableStateOf(false)
         private set
+    var shouldReload by mutableStateOf(false)
 
     fun loadImage() {
         isLoading = true
         viewModelScope.launch {
             when (val result = loader.loadFrom(imageURL)) {
-                is Result.Failure -> Unit
+                is Result.Failure -> shouldReload = true
                 is Result.Success -> image = imageConverter(result.data)
             }
 
