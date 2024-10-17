@@ -21,6 +21,7 @@ fun PhotoDetailScreen(
         modifier,
         photoDetailViewModel.photo,
         photoDetailViewModel.image,
+        if (photoDetailViewModel.shouldReloadImage) photoDetailViewModel::loadImage else null,
         photoDetailViewModel.isLoading
     )
 }
