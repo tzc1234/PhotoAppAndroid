@@ -17,17 +17,29 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.tszlung.photoapp.main.makeImageBitmap
 import com.tszlung.photoapp.ui.composable.modifiers.shimmer
+import com.tszlung.photoapp.ui.theme.PhotoAppTheme
 
 @Composable
-fun PhotoCard(imageBitmap: ImageBitmap?, author: String, isShimming: Boolean, onClick: () -> Unit) {
+fun PhotoCard(
+    imageBitmap: ImageBitmap?,
+    author: String,
+    isShimming: Boolean,
+    onRetry: (() -> Unit)? = null,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .padding(6.dp)
@@ -74,6 +86,32 @@ fun PhotoCard(imageBitmap: ImageBitmap?, author: String, isShimming: Boolean, on
                     )
                 }
             }
+
+            onRetry?.let {
+                TextButton(
+                    onClick = it, modifier = Modifier.align(Alignment.Center)
+                ) {
+                    Text(
+                        "↻",
+                        color = Color.White,
+                        fontSize = 60.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PhotoCardPreview() {
+    PhotoAppTheme {
+        PhotoCard(
+            makeImageBitmap(),
+            "Author",
+            false,
+            {}
+        ) {}
     }
 }

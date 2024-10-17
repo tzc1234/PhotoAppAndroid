@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -22,9 +24,11 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.tszlung.photoapp.features.Photo
 import com.tszlung.photoapp.main.makeImageBitmap
 import com.tszlung.photoapp.ui.composable.modifiers.shimmer
@@ -36,6 +40,7 @@ fun PhotoDetail(
     modifier: Modifier = Modifier,
     photo: Photo,
     imageBitmap: ImageBitmap?,
+    onRetry: (() -> Unit)? = null,
     isShimming: Boolean
 ) {
     Column(
@@ -59,6 +64,19 @@ fun PhotoDetail(
                     modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.Fit
                 )
+            }
+
+            onRetry?.let {
+                TextButton(
+                    onClick = it, modifier = Modifier.align(Alignment.Center)
+                ) {
+                    Text(
+                        "↻",
+                        color = Color.White,
+                        fontSize = 60.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
         }
 
@@ -111,6 +129,7 @@ fun Preview() {
                 imageURL = URL("https://a-url.com")
             ),
             imageBitmap = makeImageBitmap(),
+            onRetry = {},
             isShimming = false
         )
     }
