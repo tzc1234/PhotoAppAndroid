@@ -6,7 +6,6 @@ import com.tszlung.photoapp.helpers.makePhoto
 import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import com.tszlung.photoapp.presentation.helpers.MainCoroutineExtension
-import com.tszlung.photoapp.presentation.util.PageablePhotosLoader
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest

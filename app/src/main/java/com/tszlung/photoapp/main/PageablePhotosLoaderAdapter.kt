@@ -1,7 +1,7 @@
 package com.tszlung.photoapp.main
 
 import com.tszlung.photoapp.features.Photo
-import com.tszlung.photoapp.presentation.util.PageablePhotosLoader
+import com.tszlung.photoapp.presentation.PageablePhotosLoader
 import com.tszlung.photoapp.util.*
 import io.ktor.http.Parameters
 import io.ktor.http.URLBuilder

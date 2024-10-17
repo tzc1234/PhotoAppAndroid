@@ -6,10 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tszlung.photoapp.features.Photo
-import com.tszlung.photoapp.presentation.util.PageablePhotosLoader
+import com.tszlung.photoapp.util.Error
 import com.tszlung.photoapp.util.Result
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+interface PageablePhotosLoader {
+    suspend fun loadPhotos(page: Int): Result<List<Photo>, Error>
+}
 
 class PhotosViewModel(private val loader: PageablePhotosLoader) : ViewModel() {
     var isLoading by mutableStateOf(false)
