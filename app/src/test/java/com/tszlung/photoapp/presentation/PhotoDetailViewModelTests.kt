@@ -98,6 +98,17 @@ class PhotoDetailViewModelTests {
         assertEquals(image, sut.image)
     }
 
+    @Test
+    fun `delivers should reload image on loader failure`() = runTest {
+        val (sut, _) = makeSUT(stubs = mutableListOf(Result.Failure(AnyError.ANY)))
+
+        sut.loadImage()
+        assertFalse(sut.shouldReloadImage)
+
+        advanceUntilIdle()
+        assertTrue(sut.shouldReloadImage)
+    }
+
     // region Helpers
     private fun makeSUT(
         photo: Photo = makePhoto(0),
