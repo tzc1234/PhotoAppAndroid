@@ -27,7 +27,10 @@ class PhotoDetailViewModel<I>(
         viewModelScope.launch {
             when (val result = loader.loadFrom(photo.imageURL)) {
                 is Result.Failure -> shouldReloadImage = true
-                is Result.Success -> image = imageConvertor(result.data)
+                is Result.Success -> {
+                    image = imageConvertor(result.data)
+                    shouldReloadImage = false
+                }
             }
 
             isLoading = false

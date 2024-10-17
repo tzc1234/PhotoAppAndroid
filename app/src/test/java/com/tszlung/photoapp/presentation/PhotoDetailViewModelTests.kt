@@ -87,7 +87,12 @@ class PhotoDetailViewModelTests {
     @Test
     fun `loadImage delivers previous image on loader failure`() = runTest {
         val image = anyData()
-        val (sut, _) = makeSUT(stubs = mutableListOf(Result.Success(image), Result.Failure(AnyError.ANY)))
+        val (sut, _) = makeSUT(
+            stubs = mutableListOf(
+                Result.Success(image),
+                Result.Failure(AnyError.ANY)
+            )
+        )
 
         sut.loadImage()
         advanceUntilIdle()
@@ -109,13 +114,31 @@ class PhotoDetailViewModelTests {
         assertTrue(sut.shouldReloadImage)
     }
 
+    @Test
+    fun `does not deliver should reload image on image reload success`() = runTest {
+        val (sut, _) = makeSUT(
+            stubs = mutableListOf(
+                Result.Failure(AnyError.ANY),
+                Result.Success(anyData())
+            )
+        )
+
+        sut.loadImage()
+        advanceUntilIdle()
+        assertTrue(sut.shouldReloadImage)
+
+        sut.loadImage()
+        advanceUntilIdle()
+        assertFalse(sut.shouldReloadImage)
+    }
+
     // region Helpers
     private fun makeSUT(
         photo: Photo = makePhoto(0),
         stubs: MutableList<Result<ByteArray, Error>> = mutableListOf(Result.Failure(AnyError.ANY))
     ): Pair<PhotoDetailViewModel<ByteArray>, ImageDataLoaderSpy> {
         val loader = ImageDataLoaderSpy(stubs)
-        val sut = PhotoDetailViewModel(photo, loader, { it })
+        val sut = PhotoDetailViewModel(photo, loader) { it }
         return Pair(sut, loader)
     }
 
