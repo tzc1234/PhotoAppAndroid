@@ -197,7 +197,12 @@ fun DefaultPreview() {
                 modifier = Modifier.padding(innerPadding),
                 photos = listOf(makePhoto(0), makePhoto(1), makePhoto(2)),
             ) { photo ->
-                PhotoCard(makeImageBitmap(), photo.author, false) {}
+                PhotoCard(
+                    makeImageBitmap(),
+                    photo.author,
+                    false,
+                    {}
+                ) {}
             }
         }
     }

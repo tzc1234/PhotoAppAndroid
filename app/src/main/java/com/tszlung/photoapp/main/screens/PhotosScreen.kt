@@ -35,7 +35,8 @@ fun PhotosScreen(
         PhotoCard(
             photoImageViewModel.image,
             photo.author,
-            photoImageViewModel.isLoading
+            photoImageViewModel.isLoading,
+            if (photoImageViewModel.shouldReload) { photoImageViewModel::loadImage } else null
         ) {
             navController.navigate(
                 PhotoDetailNav(
