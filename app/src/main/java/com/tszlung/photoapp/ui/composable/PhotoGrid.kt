@@ -30,13 +30,13 @@ fun PhotosGrid(
     gridItem: @Composable (Photo) -> Unit
 ) {
     val gridState = rememberLazyGridState()
-    val interaction = gridState.interactionSource.interactions.collectAsStateWithLifecycle(null)
+    val interaction by gridState.interactionSource.interactions.collectAsStateWithLifecycle(null)
 
     PullToRefreshBox(isRefreshing = isRefreshing, onRefresh = onRefresh, modifier = modifier) {
         val bottomReached: Boolean by remember {
             derivedStateOf {
                 val cannotScrollForward = !gridState.canScrollForward
-                val stopDragging = interaction.value is DragInteraction.Stop
+                val stopDragging = interaction is DragInteraction.Stop
                 val lastVisibleItemIndex =
                     gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
                 val lastVisibleItemReached =
